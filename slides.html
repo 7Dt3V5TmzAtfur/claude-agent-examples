@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:'IBM Plex Sans','PingFang SC',sans-serif;color:#E2E8F0}
+
+/* ═══════════════════════════════════════
+   幻灯片容器
+═══════════════════════════════════════ */
+.deck{position:relative;width:100%;height:100%;overflow:hidden}
+.slide{
+  position:absolute;inset:0;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.4s ease;
+}
+.slide.active{opacity:1;pointer-events:all}
+
+/* ═══════════════════════════════════════
+   导航 UI
+═══════════════════════════════════════ */
+.nav{
+  position:fixed;bottom:2vh;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:1.2vw;
+  background:rgba(2,8,16,0.85);border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  padding:0.6vh 1.4vw;border-radius:999px;z-index:1000;
+}
+.nav-btn{
+  width:2.4vw;height:2.4vw;border-radius:50%;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);color:#64748B;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:0.9vw;
+  transition:all 0.2s;user-select:none;
+}
+.nav-btn:hover{background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);color:#22C55E}
+.nav-dots{display:flex;gap:0.5vw;align-items:center}
+.nav-dot{
+  width:0.5vw;height:0.5vw;border-radius:50%;
+  background:rgba(255,255,255,0.12);cursor:pointer;
+  transition:all 0.2s;
+}
+.nav-dot.on{background:#22C55E;box-shadow:0 0 6px #22C55E;width:1.4vw;border-radius:3px}
+.nav-count{font-family:'JetBrains Mono',monospace;font-size:0.7vw;color:#334155;min-width:3vw;text-align:center}
+
+/* ═══════════════════════════════════════
+   公共背景元素
+═══════════════════════════════════════ */
+.bg{position:absolute;inset:0;pointer-events:none}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(34,197,94,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(34,197,94,0.03) 1px,transparent 1px);background-size:5vw 5vw}
+.top-bar{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#22C55E,#4ADE80 40%,#6366F1 70%,#8B5CF6);z-index:50}
+
+/* ═══════════════════════════════════════
+   公共样式
+═══════════════════════════════════════ */
+.page-id{position:absolute;top:1.8vw;left:3vw;font-family:'JetBrains Mono',monospace;font-size:0.72vw;color:#1E3A2A;z-index:20}
+.page-id span{color:#22C55E}
+.tag{font-family:'JetBrains Mono',monospace;font-size:0.72vw;letter-spacing:0.14em;color:#22C55E;margin-bottom:0.8vw}
+.title{font-size:3.6vw;font-weight:900;letter-spacing:-0.02em;line-height:1;color:#F8FAFC;margin-bottom:0.4vw}
+.title em{font-style:normal;background:linear-gradient(120deg,#22C55E,#4ADE80);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.desc{font-size:0.95vw;color:#64748B;line-height:1.7;margin-bottom:1.8vw}
+
+/* 代码卡片 */
+.code-card{background:#020810;border:1px solid rgba(255,255,255,0.06);border-radius:0.7vw;overflow:hidden;display:flex;flex-direction:column}
+.code-card.green{border-color:rgba(34,197,94,0.2)}
+.c-head{padding:0.65vw 1vw;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.c-label{font-family:'JetBrains Mono',monospace;font-size:0.68vw;color:#334155}
+.c-label.g{color:#22C55E}
+.dots{display:flex;gap:0.4vw}
+.dot{width:0.65vw;height:0.65vw;border-radius:50%}
+.dot-r{background:#FF5F57}.dot-y{background:#FEBC2E}.dot-g{background:#28C840}
+.c-body{padding:1vw 1.4vw;font-family:'JetBrains Mono',monospace;font-size:0.85vw;line-height:1.9}
+.ln{color:#1E3A2A;margin-right:0.8vw;font-size:0.72vw;user-select:none}
+.kw{color:#6366F1}.fn{color:#22C55E}.st{color:#FB923C}
+.cm{color:#1E3A2A;font-style:italic}.va{color:#E2E8F0}.prop{color:#93C5FD}
+.hl{background:rgba(34,197,94,0.06);border-left:2px solid #22C55E;display:block;padding-left:0.4vw;margin-left:-0.4vw;border-radius:0 2px 2px 0}
+.sec-sep{height:1px;background:rgba(255,255,255,0.04);margin:0.3vw 0}
+.sec-t{font-size:0.62vw;color:#1E3A2A;letter-spacing:0.1em;margin-bottom:0.3vw;margin-top:0.3vw}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 0 — 封面
+═══════════════════════════════════════ */
+#s0 .glow-l{position:absolute;width:55vw;height:100%;background:radial-gradient(ellipse at left center,rgba(34,197,94,0.08) 0%,transparent 60%)}
+#s0 .glow-r{position:absolute;width:30vw;height:60%;bottom:-10%;right:-5%;background:radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 65%)}
+#s0 .wrap{position:relative;z-index:10;display:grid;grid-template-columns:1fr 28vw;height:100%}
+#s0 .left{display:flex;flex-direction:column;justify-content:center;padding:4vw 3vw 4vw 5vw;border-right:1px solid rgba(34,197,94,0.08)}
+#s0 .chip{display:inline-flex;align-items:center;gap:0.6vw;font-family:'JetBrains Mono',monospace;font-size:0.82vw;letter-spacing:0.12em;color:#22C55E;margin-bottom:1.6vw}
+#s0 .chip-dot{width:0.5vw;height:0.5vw;background:#22C55E;border-radius:50%;box-shadow:0 0 6px #22C55E;animation:blink 1.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px #22C55E}50%{opacity:0.3;box-shadow:none}}
+#s0 .h1{font-size:6.5vw;font-weight:900;line-height:0.95;letter-spacing:-0.03em;color:#F8FAFC;margin-bottom:0.3vw}
+#s0 .h1-green{font-size:6.5vw;font-weight:900;line-height:0.95;letter-spacing:-0.03em;background:linear-gradient(120deg,#22C55E,#4ADE80 60%,#86EFAC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:2.5vw}
+#s0 .terminal{background:#020810;border:1px solid rgba(34,197,94,0.18);border-radius:0.7vw;overflow:hidden;max-width:40vw;box-shadow:0 0 3vw rgba(34,197,94,0.06)}
+#s0 .term-bar{display:flex;align-items:center;gap:0.5vw;padding:0.7vw 1vw;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.05)}
+#s0 .term-title{margin:0 auto;font-family:'JetBrains Mono',monospace;font-size:0.72vw;color:#334155}
+#s0 .term-body{padding:1.2vw 1.4vw;font-family:'JetBrains Mono',monospace;font-size:0.9vw;line-height:2}
+#s0 .l{display:flex;gap:1vw;align-items:baseline}
+#s0 .right{display:flex;flex-direction:column;justify-content:center;padding:3vw 3vw 3vw 2.5vw}
+#s0 .sec-label{font-family:'JetBrains Mono',monospace;font-size:0.68vw;letter-spacing:0.16em;color:#1E3A2A;margin-bottom:1.4vw}
+#s0 .step{display:flex;align-items:center;gap:1vw;padding:0.8vw 1.1vw;border-radius:0.5vw;margin-bottom:0.5vw;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.015);position:relative}
+#s0 .step.hi{border-color:rgba(34,197,94,0.28);background:rgba(34,197,94,0.05);box-shadow:0 0 1.5vw rgba(34,197,94,0.05)}
+#s0 .step:not(:last-child)::after{content:'';position:absolute;left:1.9vw;bottom:-0.55vw;width:1px;height:0.55vw;background:rgba(255,255,255,0.06)}
+#s0 .step.hi:not(:last-child)::after{background:rgba(34,197,94,0.2)}
+#s0 .num{width:1.9vw;height:1.9vw;border-radius:0.4vw;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.72vw;font-weight:700;background:rgba(255,255,255,0.04);color:#334155;border:1px solid rgba(255,255,255,0.06)}
+#s0 .step.hi .num{background:rgba(34,197,94,0.12);color:#22C55E;border-color:rgba(34,197,94,0.3);box-shadow:0 0 0.8vw rgba(34,197,94,0.15)}
+#s0 .sname{font-size:0.95vw;font-weight:600;color:#64748B;line-height:1;margin-bottom:0.2vw}
+#s0 .step.hi .sname{color:#E2E8F0}
+#s0 .shint{font-family:'JetBrains Mono',monospace;font-size:0.68vw;color:#1A2E1E}
+#s0 .step.hi .shint{color:#1E5C2A}
+#s0 .badge{font-family:'JetBrains Mono',monospace;font-size:0.62vw;font-weight:700;padding:0.2vw 0.5vw;border-radius:0.3vw;background:rgba(34,197,94,0.1);color:#22C55E;border:1px solid rgba(34,197,94,0.2);letter-spacing:0.08em}
+#s0 .footer{position:absolute;bottom:1.5vw;left:5vw;right:3vw;display:flex;align-items:center;justify-content:space-between;z-index:20;font-family:'JetBrains Mono',monospace;font-size:0.72vw;color:#0F2A18}
+#s0 .footer span{color:#166534}
+#s0 .cursor{display:inline-block;width:0.6vw;height:1.1vw;background:#22C55E;margin-left:2px;vertical-align:middle;animation:cur 1.1s step-end infinite}
+@keyframes cur{0%,100%{opacity:1}50%{opacity:0}}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 1 — API 格式
+═══════════════════════════════════════ */
+#s1 .glow{position:absolute;width:50vw;height:80vh;top:10%;left:-10%;background:radial-gradient(ellipse,rgba(34,197,94,0.07) 0%,transparent 65%)}
+#s1 .wrap{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:1fr 1fr;padding:4vw 4vw 3vw;gap:3vw}
+#s1 .left{display:flex;flex-direction:column;justify-content:center}
+#s1 .right{display:flex;flex-direction:column;justify-content:center;gap:1vw}
+#s1 .notes{display:flex;flex-direction:column;gap:0.7vw;margin-top:1.8vw}
+#s1 .note{display:flex;align-items:flex-start;gap:0.8vw;padding:0.8vw 1vw;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.1);border-radius:0.5vw;font-size:0.82vw;color:#4B6741;line-height:1.5}
+#s1 .note strong{color:#22C55E;font-family:'JetBrains Mono',monospace;display:block;margin-bottom:0.15vw}
+#s1 .note-icon{width:1.8vw;height:1.8vw;border-radius:0.3vw;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.65vw;font-weight:700;background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.25)}
+#s1 .arrow-row{display:flex;align-items:center;gap:0.8vw;font-family:'JetBrains Mono',monospace;font-size:0.78vw;color:#334155}
+#s1 .arrow-row span{color:#22C55E}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 2 — 提示词工程
+═══════════════════════════════════════ */
+#s2 .glow{position:absolute;width:60vw;height:80vh;top:0;right:-10%;background:radial-gradient(ellipse,rgba(99,102,241,0.07) 0%,transparent 65%)}
+#s2 .wrap{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:1fr 1fr;padding:4vw 4vw 3vw;gap:3vw}
+#s2 .left{display:flex;flex-direction:column;justify-content:center}
+#s2 .right{display:flex;flex-direction:column;justify-content:center;gap:1vw}
+#s4 .points{display:flex;flex-direction:column;gap:0.8vw}
+#s4 .point{display:flex;align-items:flex-start;gap:1vw;padding:1vw 1.2vw;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:0.5vw}
+#s4 .point.hi{border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.04)}
+#s4 .point-icon{width:2.2vw;height:2.2vw;border-radius:0.4vw;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.8vw;font-weight:700;background:rgba(255,255,255,0.04);color:#475569;border:1px solid rgba(255,255,255,0.06)}
+#s4 .point.hi .point-icon{background:rgba(34,197,94,0.12);color:#22C55E;border-color:rgba(34,197,94,0.25)}
+#s4 .point-name{font-size:0.95vw;font-weight:700;color:#94A3B8;margin-bottom:0.2vw}
+#s4 .point.hi .point-name{color:#E2E8F0}
+#s4 .point-desc{font-size:0.78vw;color:#334155;line-height:1.5}
+#s4 .point.hi .point-desc{color:#4B6741}
+#s4 .arrow-row{display:flex;align-items:center;justify-content:center;gap:0.8vw;font-family:'JetBrains Mono',monospace;font-size:0.78vw;color:#334155}
+#s4 .arrow-row span{color:#22C55E;font-size:1vw}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 3 — 对话循环
+═══════════════════════════════════════ */
+#s3 .glow{position:absolute;width:40vw;height:100%;top:0;left:30%;background:radial-gradient(ellipse,rgba(34,197,94,0.06) 0%,transparent 65%)}
+#s3 .wrap{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:1fr 1fr;padding:4vw 4vw 3vw;gap:3vw}
+#s3 .left{display:flex;flex-direction:column;justify-content:center}
+#s3 .right{display:flex;flex-direction:column;justify-content:center;gap:1vw}
+#s2 .flow{display:flex;flex-direction:column}
+#s2 .frow{display:flex;align-items:stretch;gap:0.8vw}
+#s2 .frow-left{display:flex;flex-direction:column;align-items:center;width:2.2vw;flex-shrink:0}
+#s2 .frow-icon{width:2.2vw;height:2.2vw;border-radius:0.4vw;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.7vw;font-weight:700;flex-shrink:0;border:1px solid rgba(34,197,94,0.25);background:rgba(34,197,94,0.1);color:#22C55E}
+#s2 .frow-icon.dim{border-color:rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#475569}
+#s2 .frow-line{flex:1;width:1px;background:rgba(34,197,94,0.2);margin:0.2vw 0}
+#s2 .frow-line.dim{background:rgba(255,255,255,0.06)}
+#s2 .frow-body{flex:1;padding:0.7vw 0;display:flex;flex-direction:column;justify-content:center}
+#s2 .frow-name{font-size:0.9vw;font-weight:700;color:#E2E8F0;margin-bottom:0.15vw}
+#s2 .frow-name.dim{color:#64748B}
+#s2 .frow-sub{font-family:'JetBrains Mono',monospace;font-size:0.7vw;color:#22613A}
+#s2 .frow-sub.dim{color:#1A2E1E}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 4 — 上下文工程
+═══════════════════════════════════════ */
+#s4 .glow{position:absolute;width:50vw;height:100%;top:0;right:0;background:radial-gradient(ellipse at right,rgba(99,102,241,0.08) 0%,transparent 65%)}
+#s4 .wrap{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:1fr 1fr;padding:4vw 4vw 3vw;gap:3vw}
+#s4 .left{display:flex;flex-direction:column;justify-content:center}
+#s4 .right{display:flex;flex-direction:column;justify-content:center;gap:1vw}
+#s3 .ctx-box{background:#020810;border:1px solid rgba(34,197,94,0.15);border-radius:0.8vw;overflow:hidden;margin-bottom:1.5vw}
+#s3 .ctx-title{padding:0.55vw 1vw;background:rgba(34,197,94,0.06);border-bottom:1px solid rgba(34,197,94,0.1);font-family:'JetBrains Mono',monospace;font-size:0.68vw;color:#22C55E;letter-spacing:0.1em}
+#s3 .ctx-row{display:flex;align-items:center;gap:0.8vw;padding:0.45vw 1vw}
+#s3 .ctx-role{font-family:'JetBrains Mono',monospace;font-size:0.68vw;width:4.5vw;flex-shrink:0;padding:0.18vw 0.4vw;border-radius:3px;text-align:center}
+#s3 .ctx-role.sys{background:rgba(99,102,241,0.12);color:#818CF8;border:1px solid rgba(99,102,241,0.2)}
+#s3 .ctx-role.usr{background:rgba(34,197,94,0.1);color:#22C55E;border:1px solid rgba(34,197,94,0.2)}
+#s3 .ctx-role.ast{background:rgba(251,146,60,0.1);color:#FB923C;border:1px solid rgba(251,146,60,0.2)}
+#s3 .ctx-content{font-size:0.78vw;color:#475569;font-family:'JetBrains Mono',monospace}
+#s3 .ctx-row.cur .ctx-content{color:#94A3B8}
+#s3 .ctx-div{height:1px;background:rgba(255,255,255,0.04);margin:0.25vw 0}
+#s3 .key-point{display:flex;align-items:center;gap:0.8vw;padding:0.7vw 1vw;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.12);border-radius:0.5vw;font-size:0.82vw;color:#4B6741}
+#s3 .key-point strong{color:#22C55E}
+#s3 .diff-box{display:grid;grid-template-columns:1fr 1fr;gap:1vw}
+#s3 .diff-item{padding:0.8vw 1vw;border-radius:0.5vw;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02)}
+#s3 .diff-item.bad{border-color:rgba(239,68,68,0.15);background:rgba(239,68,68,0.03)}
+#s3 .diff-item.good{border-color:rgba(34,197,94,0.15);background:rgba(34,197,94,0.03)}
+#s3 .diff-label{font-family:'JetBrains Mono',monospace;font-size:0.65vw;margin-bottom:0.4vw;color:#475569}
+#s3 .diff-item.bad .diff-label{color:#EF4444}
+#s3 .diff-item.good .diff-label{color:#22C55E}
+#s3 .diff-text{font-size:0.78vw;color:#475569;line-height:1.5}
+#s3 .diff-item.good .diff-text{color:#4B6741}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 5 — Function Call
+═══════════════════════════════════════ */
+#s5 .glow-l{position:absolute;width:45vw;height:100%;top:0;left:-5%;background:radial-gradient(ellipse at left,rgba(34,197,94,0.07) 0%,transparent 65%)}
+#s5 .glow-r{position:absolute;width:35vw;height:70%;top:15%;right:-5%;background:radial-gradient(circle,rgba(99,102,241,0.07) 0%,transparent 65%)}
+#s5 .wrap{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:1fr 1.1fr;padding:3.5vw 4vw 3vw;gap:2.5vw}
+#s5 .left{display:flex;flex-direction:column;justify-content:center}
+#s5 .right{display:flex;flex-direction:column;justify-content:center}
+#s5 .flow{display:flex;flex-direction:column}
+#s5 .frow{display:flex;align-items:stretch;gap:0.8vw}
+#s5 .frow-left{display:flex;flex-direction:column;align-items:center;width:2.2vw;flex-shrink:0}
+#s5 .frow-icon{width:2.2vw;height:2.2vw;border-radius:0.4vw;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:0.68vw;font-weight:700;flex-shrink:0}
+#s5 .frow-line{flex:1;width:1px;margin:0.2vw 0}
+#s5 .f-model{background:rgba(99,102,241,0.12);color:#818CF8;border:1px solid rgba(99,102,241,0.2)}
+#s5 .f-tool{background:rgba(34,197,94,0.12);color:#22C55E;border:1px solid rgba(34,197,94,0.25)}
+#s5 .f-result{background:rgba(251,146,60,0.1);color:#FB923C;border:1px solid rgba(251,146,60,0.2)}
+#s5 .fl-green{background:rgba(34,197,94,0.2)}
+#s5 .fl-dim{background:rgba(255,255,255,0.06)}
+#s5 .frow-body{flex:1;padding:0.65vw 0;display:flex;flex-direction:column;justify-content:center}
+#s5 .frow-name{font-size:0.9vw;font-weight:700;color:#E2E8F0;margin-bottom:0.15vw}
+#s5 .frow-name.dim{color:#64748B}
+#s5 .frow-sub{font-family:'JetBrains Mono',monospace;font-size:0.7vw;color:#22613A}
+#s5 .frow-sub.dim{color:#1A2E1E}
+#s5 .c-body{padding:0.8vw 1.4vw;font-family:'JetBrains Mono',monospace;font-size:0.8vw;line-height:1.8}
+
+
+/* ═══════════════════════════════════════
+   SLIDE 6 — Progressive Disclosure
+═══════════════════════════════════════ */
+#s6 .glow-l{position:absolute;width:55vw;height:100%;top:0;left:-8%;background:radial-gradient(ellipse at left,rgba(34,197,94,0.07) 0%,transparent 60%)}
+#s6 .glow-r{position:absolute;width:40vw;height:70%;top:15%;right:-5%;background:radial-gradient(circle,rgba(99,102,241,0.09) 0%,transparent 65%)}
+#s6 .wrap{position:relative;z-index:10;height:100%;display:grid;grid-template-columns:1fr 1.2fr;padding:3.5vw 4vw 3vw;gap:3vw}
+#s6 .left{display:flex;flex-direction:column;justify-content:center}
+#s6 .right{display:flex;flex-direction:column;justify-content:center;gap:1vw}
+
+/* 核心概念对比卡 */
+#s6 .pd-compare{display:grid;grid-template-columns:1fr 1fr;gap:0.8vw;margin-top:1.6vw}
+#s6 .pd-card{border-radius:0.6vw;overflow:hidden;border:1px solid rgba(255,255,255,0.06)}
+#s6 .pd-card.bad{border-color:rgba(239,68,68,0.2)}
+#s6 .pd-card.good{border-color:rgba(34,197,94,0.3);box-shadow:0 0 2vw rgba(34,197,94,0.06)}
+#s6 .pd-card-head{padding:0.5vw 0.9vw;font-family:'JetBrains Mono',monospace;font-size:0.65vw;letter-spacing:0.1em;display:flex;align-items:center;gap:0.5vw}
+#s6 .pd-card.bad .pd-card-head{background:rgba(239,68,68,0.06);color:#EF4444;border-bottom:1px solid rgba(239,68,68,0.12)}
+#s6 .pd-card.good .pd-card-head{background:rgba(34,197,94,0.06);color:#22C55E;border-bottom:1px solid rgba(34,197,94,0.12)}
+#s6 .pd-card-body{padding:0.8vw 0.9vw;background:#020810}
+#s6 .pd-row{display:flex;align-items:center;gap:0.5vw;margin-bottom:0.4vw}
+#s6 .pd-bar{height:0.55vw;border-radius:2px;flex-shrink:0}
+#s6 .pd-bar-label{font-family:'JetBrains Mono',monospace;font-size:0.6vw;white-space:nowrap}
+#s6 .pd-note{font-size:0.72vw;color:#334155;margin-top:0.5vw;line-height:1.4}
+#s6 .pd-card.bad .pd-note{color:#7F1D1D}
+#s6 .pd-card.good .pd-note{color:#166534}
+
+/* 渐进式披露流程图 */
+#s6 .pd-flow{display:flex;align-items:stretch;gap:0;margin-bottom:0.8vw}
+#s6 .pd-step{flex:1;padding:0.9vw 1vw;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);position:relative}
+#s6 .pd-step.s1{border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.05);border-radius:0.5vw 0 0 0.5vw}
+#s6 .pd-step.s2{border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.05);border-radius:0 0.5vw 0.5vw 0;border-left:none}
+#s6 .pd-step-tag{font-family:'JetBrains Mono',monospace;font-size:0.6vw;letter-spacing:0.12em;margin-bottom:0.35vw;font-weight:700}
+#s6 .pd-step.s1 .pd-step-tag{color:#818CF8}
+#s6 .pd-step.s2 .pd-step-tag{color:#22C55E}
+#s6 .pd-step-name{font-size:0.88vw;font-weight:700;color:#E2E8F0;margin-bottom:0.2vw}
+#s6 .pd-step-desc{font-size:0.72vw;line-height:1.5}
+#s6 .pd-step.s1 .pd-step-desc{color:#6D6F9E}
+#s6 .pd-step.s2 .pd-step-desc{color:#4B6741}
+#s6 .pd-arrow{width:2.2vw;display:flex;align-items:center;justify-content:center;font-size:1vw;color:#334155;flex-shrink:0;background:rgba(255,255,255,0.01);border-top:1px solid rgba(34,197,94,0.15);border-bottom:1px solid rgba(34,197,94,0.15)}
+
+/* 右侧 token 可视化 */
+#s6 .ctx-win{background:#020810;border:1px solid rgba(255,255,255,0.08);border-radius:0.7vw;overflow:hidden}
+#s6 .ctx-win-head{padding:0.55vw 1vw;background:rgba(255,255,255,0.02);border-bottom:1px solid rgba(255,255,255,0.05);font-family:'JetBrains Mono',monospace;font-size:0.65vw;color:#334155;display:flex;justify-content:space-between;align-items:center}
+#s6 .ctx-win-head span{color:#22C55E}
+#s6 .ctx-win-body{padding:0.9vw 1vw;display:flex;flex-direction:column;gap:0.5vw}
+#s6 .ctx-seg{border-radius:0.35vw;padding:0.5vw 0.8vw;display:flex;align-items:center;justify-content:space-between}
+#s6 .ctx-seg.sys{background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2)}
+#s6 .ctx-seg.l1{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.25)}
+#s6 .ctx-seg.hist{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06)}
+#s6 .ctx-seg.l2{background:rgba(34,197,94,0.04);border:1px dashed rgba(34,197,94,0.2)}
+#s6 .ctx-seg-label{font-family:'JetBrains Mono',monospace;font-size:0.68vw}
+#s6 .ctx-seg.sys .ctx-seg-label{color:#818CF8}
+#s6 .ctx-seg.l1 .ctx-seg-label{color:#22C55E}
+#s6 .ctx-seg.hist .ctx-seg-label{color:#475569}
+#s6 .ctx-seg.l2 .ctx-seg-label{color:#22613A}
+#s6 .ctx-tok{font-family:'JetBrains Mono',monospace;font-size:0.62vw;padding:0.15vw 0.5vw;border-radius:3px}
+#s6 .ctx-seg.l1 .ctx-tok{background:rgba(34,197,94,0.12);color:#22C55E}
+#s6 .ctx-seg.l2 .ctx-tok{background:rgba(34,197,94,0.06);color:#22613A}
+#s6 .ctx-seg.sys .ctx-tok{background:rgba(99,102,241,0.1);color:#818CF8}
+#s6 .ctx-seg.hist .ctx-tok{background:rgba(255,255,255,0.04);color:#334155}
+#s6 .ctx-trigger{display:flex;align-items:center;gap:0.6vw;padding:0.4vw 1vw;font-family:'JetBrains Mono',monospace;font-size:0.68vw;color:#22613A;border-top:1px solid rgba(34,197,94,0.08)}
+#s6 .ctx-trigger span{color:#22C55E}
+
+/* 洞见卡片 */
+#s6 .insight{display:flex;align-items:flex-start;gap:0.8vw;padding:0.9vw 1.1vw;background:rgba(34,197,94,0.04);border:1px solid rgba(34,197,94,0.18);border-radius:0.5vw;border-left:3px solid #22C55E}
+#s6 .insight-icon{font-family:'JetBrains Mono',monospace;font-size:0.65vw;font-weight:700;color:#22C55E;flex-shrink:0;margin-top:0.1vw}
+#s6 .insight-text{font-size:0.82vw;color:#4B6741;line-height:1.6}
+#s6 .insight-text strong{color:#22C55E;font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+<!-- ══════════════ SLIDE 0: 封面 ══════════════ -->
+<div class="slide active" id="s0">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="chip"><div class="chip-dot"></div>PYTHON &nbsp;·&nbsp; ANTHROPIC SDK &nbsp;·&nbsp; STEP BY STEP</div>
+      <div class="h1">从零手搓</div>
+      <div class="h1-green">AI Agent</div>
+      <div class="terminal">
+        <div class="term-bar">
+          <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          <div class="term-title">agent6.py — python</div>
+        </div>
+        <div class="term-body">
+          <div class="l"><span class="ln" style="color:#1E3A2A;width:1vw;flex-shrink:0;font-size:0.75vw">1</span><span class="cm"># 五个文件，五层递进</span></div>
+          <div class="l"><span class="ln" style="color:#1E3A2A;width:1vw;flex-shrink:0;font-size:0.75vw">2</span><span class="va">history </span><span class="kw">= </span><span class="va">[]</span></div>
+          <div class="l"><span class="ln" style="color:#1E3A2A;width:1vw;flex-shrink:0;font-size:0.75vw">3</span><span class="kw">while </span><span class="va">True:</span></div>
+          <div class="l"><span class="ln" style="color:#1E3A2A;width:1vw;flex-shrink:0;font-size:0.75vw">4</span><span class="va">&nbsp;&nbsp;msg </span><span class="kw">= </span><span class="fn">input</span><span class="va">(</span><span class="st">"你: "</span><span class="va">)</span></div>
+          <div class="l"><span class="ln" style="color:#1E3A2A;width:1vw;flex-shrink:0;font-size:0.75vw">5</span><span class="va">&nbsp;&nbsp;reply </span><span class="kw">= </span><span class="fn">agent</span><span class="va">(msg, history, tools)</span><span class="cursor"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="sec-label">// PROGRESSION</div>
+      <div class="step"><div class="num">01</div><div><div class="sname">命令行 I/O</div><div class="shint">input() → print()</div></div></div>
+      <div class="step"><div class="num">02</div><div><div class="sname">对话循环</div><div class="shint">while True</div></div></div>
+      <div class="step"><div class="num">03</div><div><div class="sname">上下文记忆</div><div class="shint">history[ ]</div></div></div>
+      <div class="step"><div class="num">04</div><div><div class="sname">系统提示</div><div class="shint">system prompt</div></div></div>
+      <div class="step"><div class="num">05</div><div><div class="sname">工具调用</div><div class="shint">tool_use</div></div></div>
+      <div class="step hi"><div class="num">06</div><div style="flex:1"><div class="sname">技能系统</div><div class="shint">load_skill</div></div><div class="badge">SKILL</div></div>
+    </div>
+  </div>
+  <div class="footer"><div>agent1.py → agent2.py → agent3.py → agent4.py → agent5.py → <span>agent6.py</span></div><div>6 FILES · 6 CONCEPTS</div></div>
+</div>
+
+<!-- ══════════════ SLIDE 1: API ══════════════ -->
+<div class="slide" id="s1">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow"></div></div>
+  <div class="page-id">// agent1.py &nbsp;—&nbsp; <span>LLM API 调用基础</span></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="tag">CONCEPT 01 · API CALL</div>
+      <div class="title">OpenAI vs<br><em>Anthropic</em></div>
+      <div class="desc">两种主流 SDK 的调用结构对比 — 相似的思路，不同的写法</div>
+      <div class="notes">
+        <div class="note">
+          <div class="note-icon">方法</div>
+          <div><strong>messages.create &nbsp;vs&nbsp; chat.completions.create</strong>方法路径不同，但都接受 messages 列表</div>
+        </div>
+        <div class="note">
+          <div class="note-icon">system</div>
+          <div><strong>system 参数位置不同</strong>Anthropic 是顶层独立参数，OpenAI 放在 messages 里</div>
+        </div>
+        <div class="note">
+          <div class="note-icon">响应</div>
+          <div><strong>响应结构不同</strong>Anthropic: content[0].text &nbsp;·&nbsp; OpenAI: choices[0].message.content</div>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="code-card" style="margin-bottom:1vw">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label">OpenAI SDK</div></div>
+        <div class="c-body">
+          <div><span class="ln">1</span><span class="va">client </span><span class="kw">= </span><span class="fn">OpenAI</span><span class="va">(</span><span class="prop">api_key</span><span class="va">=</span><span class="st">"sk-..."</span><span class="va">)</span></div>
+          <div><span class="ln">2</span><span class="va">resp </span><span class="kw">= </span><span class="va">client.</span><span class="prop">chat</span><span class="va">.</span><span class="fn">completions</span><span class="va">.</span><span class="fn">create</span><span class="va">(</span></div>
+          <div><span class="ln">3</span><span class="va">&nbsp;&nbsp;</span><span class="prop">model</span><span class="va">=</span><span class="st">"gpt-4o"</span><span class="va">,</span></div>
+          <div><span class="ln">4</span><span class="va">&nbsp;&nbsp;</span><span class="prop">messages</span><span class="va">=[{</span><span class="st">"role"</span><span class="va">:</span><span class="st">"system"</span><span class="va">,</span><span class="st">"content"</span><span class="va">:</span><span class="st">"..."</span><span class="va">},</span></div>
+          <div><span class="ln">5</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{</span><span class="st">"role"</span><span class="va">:</span><span class="st">"user"</span><span class="va">,</span><span class="st">"content"</span><span class="va">:</span><span class="st">"hello"</span><span class="va">}]</span></div>
+          <div><span class="ln">6</span><span class="va">)</span></div>
+          <div><span class="ln">7</span><span class="va">text </span><span class="kw">= </span><span class="va">resp.</span><span class="prop">choices</span><span class="va">[0].</span><span class="prop">message</span><span class="va">.</span><span class="prop">content</span></div>
+        </div>
+      </div>
+      <div class="arrow-row"><span>↕</span><div>同样的功能，不同的结构</div></div>
+      <div class="code-card green" style="margin-top:1vw">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">Anthropic SDK — agent1.py</div></div>
+        <div class="c-body">
+          <div><span class="ln">1</span><span class="va">client </span><span class="kw">= </span><span class="fn">Anthropic</span><span class="va">(</span><span class="prop">api_key</span><span class="va">=</span><span class="st">"sk-ant-..."</span><span class="va">)</span></div>
+          <div><span class="ln">2</span><span class="va">msg </span><span class="kw">= </span><span class="va">client.</span><span class="prop">messages</span><span class="va">.</span><span class="fn">create</span><span class="va">(</span></div>
+          <div><span class="ln">3</span><span class="va">&nbsp;&nbsp;</span><span class="prop">model</span><span class="va">=</span><span class="st">"claude-haiku-4-5"</span><span class="va">,</span></div>
+          <div class="hl"><span class="ln">4</span><span class="va">&nbsp;&nbsp;</span><span class="prop">system</span><span class="va">=</span><span class="st">"..."</span><span class="va">,</span>&nbsp;<span class="cm"># 独立顶层参数</span></div>
+          <div><span class="ln">5</span><span class="va">&nbsp;&nbsp;</span><span class="prop">messages</span><span class="va">=[{</span><span class="st">"role"</span><span class="va">:</span><span class="st">"user"</span><span class="va">,</span><span class="st">"content"</span><span class="va">:</span><span class="st">"hello"</span><span class="va">}]</span></div>
+          <div><span class="ln">6</span><span class="va">)</span></div>
+          <div class="hl"><span class="ln">7</span><span class="va">text </span><span class="kw">= </span><span class="va">msg.</span><span class="prop">content</span><span class="va">[0].</span><span class="prop">text</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 2: 循环 ══════════════ -->
+<div class="slide" id="s2">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow"></div></div>
+  <div class="page-id">// agent2.py &nbsp;—&nbsp; <span>对话循环</span></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="tag">CONCEPT 02 · CONVERSATION LOOP</div>
+      <div class="title">Agent<br><em>对话循环</em></div>
+      <div class="desc">LLM 本身是无状态的单次调用。通过 while 循环，把多次独立调用串联成持续交互的 Agent。</div>
+      <div class="flow">
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon">①</div><div class="frow-line"></div></div>
+          <div class="frow-body"><div class="frow-name">等待用户输入</div><div class="frow-sub">input("你: ")</div></div>
+        </div>
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon">②</div><div class="frow-line"></div></div>
+          <div class="frow-body"><div class="frow-name">调用 LLM API</div><div class="frow-sub">messages.create(...)</div></div>
+        </div>
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon">③</div><div class="frow-line"></div></div>
+          <div class="frow-body"><div class="frow-name">输出回复</div><div class="frow-sub">print(reply)</div></div>
+        </div>
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon dim">↩</div></div>
+          <div class="frow-body"><div class="frow-name dim">回到步骤 ①</div><div class="frow-sub dim">直到 exit</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="code-card green">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">agent2.py</div></div>
+        <div class="c-body">
+          <div class="hl"><span class="ln">1</span><span class="kw">while </span><span class="va">True:</span></div>
+          <div><span class="ln">2</span><span class="va">&nbsp;&nbsp;user_input </span><span class="kw">= </span><span class="fn">input</span><span class="va">(</span><span class="st">"你: "</span><span class="va">).strip()</span></div>
+          <div><span class="ln">3</span><span class="va">&nbsp;&nbsp;</span><span class="kw">if </span><span class="va">user_input </span><span class="kw">in </span><span class="va">(</span><span class="st">"exit"</span><span class="va">,</span><span class="st">"quit"</span><span class="va">):</span></div>
+          <div><span class="ln">4</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="kw">break</span></div>
+          <div><span class="ln">5</span></div>
+          <div><span class="ln">6</span><span class="va">&nbsp;&nbsp;message </span><span class="kw">= </span><span class="va">client.messages.create(</span></div>
+          <div><span class="ln">7</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="prop">messages</span><span class="va">=[{</span><span class="st">"role"</span><span class="va">:</span><span class="st">"user"</span><span class="va">,</span><span class="st">"content"</span><span class="va">:user_input}]</span></div>
+          <div><span class="ln">8</span><span class="va">&nbsp;&nbsp;)</span></div>
+          <div class="hl"><span class="ln">9</span><span class="va">&nbsp;&nbsp;reply </span><span class="kw">= </span><span class="va">message.content[0].text</span></div>
+          <div><span class="ln">10</span><span class="va">&nbsp;&nbsp;</span><span class="fn">print</span><span class="va">(</span><span class="st">f"[Agent回答]: </span><span class="va">{reply}</span><span class="st">"</span><span class="va">)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 3: 上下文 ══════════════ -->
+<div class="slide" id="s3">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow"></div></div>
+  <div class="page-id">// agent3.py &nbsp;—&nbsp; <span>上下文工程</span></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="tag">CONCEPT 03 · CONTEXT ENGINEERING</div>
+      <div class="title"><em>上下文</em><br>工程</div>
+      <div class="desc">把历史对话存入 history 列表，每次调用都传入完整历史，让无状态的 LLM 产生「记忆」。</div>
+      <div class="ctx-box">
+        <div class="ctx-title">// 传入 API 的 messages 结构</div>
+        <div class="ctx-row"><div class="ctx-role usr">user</div><div class="ctx-content">你好</div></div>
+        <div class="ctx-row"><div class="ctx-role ast">assistant</div><div class="ctx-content">你好！有什么可以帮你？</div></div>
+        <div class="ctx-div"></div>
+        <div class="ctx-row"><div class="ctx-role usr">user</div><div class="ctx-content">记住你叫小妹</div></div>
+        <div class="ctx-row"><div class="ctx-role ast">assistant</div><div class="ctx-content">好的，我叫小妹～</div></div>
+        <div class="ctx-div"></div>
+        <div class="ctx-row cur"><div class="ctx-role usr">user</div><div class="ctx-content">你叫什么？← 当前输入</div></div>
+      </div>
+      <div class="key-point">完整历史传入 → 模型能回答「我叫<strong>小妹</strong>」</div>
+    </div>
+    <div class="right">
+      <div class="code-card green">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">agent3.py — history 管理</div></div>
+        <div class="c-body">
+          <div class="hl"><span class="ln">1</span><span class="va">history </span><span class="kw">= </span><span class="va">[]</span></div>
+          <div><span class="ln">2</span></div>
+          <div><span class="ln">3</span><span class="kw">while </span><span class="va">True:</span></div>
+          <div><span class="ln">4</span><span class="va">&nbsp;&nbsp;msg </span><span class="kw">= </span><span class="fn">input</span><span class="va">(</span><span class="st">"你: "</span><span class="va">).strip()</span></div>
+          <div><span class="ln">5</span></div>
+          <div class="hl"><span class="ln">6</span><span class="va">&nbsp;&nbsp;history.</span><span class="fn">append</span><span class="va">({</span><span class="st">"role"</span><span class="va">:</span><span class="st">"user"</span><span class="va">,</span><span class="st">"content"</span><span class="va">:msg})</span></div>
+          <div><span class="ln">7</span><span class="va">&nbsp;&nbsp;resp </span><span class="kw">= </span><span class="va">client.messages.create(</span></div>
+          <div class="hl"><span class="ln">8</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="prop">messages</span><span class="va">=history</span></div>
+          <div><span class="ln">9</span><span class="va">&nbsp;&nbsp;)</span></div>
+          <div><span class="ln">10</span><span class="va">&nbsp;&nbsp;reply </span><span class="kw">= </span><span class="fn">next</span><span class="va">(b.text </span><span class="kw">for </span><span class="va">b </span><span class="kw">in </span><span class="va">resp.content</span></div>
+          <div><span class="ln">11</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="kw">if </span><span class="va">b.type</span><span class="kw">==</span><span class="st">"text"</span><span class="va">)</span></div>
+          <div><span class="ln">12</span><span class="va">&nbsp;&nbsp;</span><span class="fn">print</span><span class="va">(</span><span class="st">f"Agent: </span><span class="va">{reply}</span><span class="st">"</span><span class="va">)</span></div>
+          <div class="hl"><span class="ln">13</span><span class="va">&nbsp;&nbsp;history.</span><span class="fn">append</span><span class="va">({</span><span class="st">"role"</span><span class="va">:</span><span class="st">"assistant"</span><span class="va">,</span><span class="st">"content"</span><span class="va">:reply})</span></div>
+        </div>
+      </div>
+      <div class="diff-box">
+        <div class="diff-item bad"><div class="diff-label">✗ agent2（无记忆）</div><div class="diff-text">每轮只传当前消息，模型不记得上轮</div></div>
+        <div class="diff-item good"><div class="diff-label">✓ agent3（有记忆）</div><div class="diff-text">传完整 history，模型能引用历史</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 4: 提示词 ══════════════ -->
+<div class="slide" id="s4">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow"></div></div>
+  <div class="page-id">// agent4.py &nbsp;—&nbsp; <span>提示词工程</span></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="tag">CONCEPT 04 · PROMPT ENGINEERING</div>
+      <div class="title"><em>System Prompt</em><br>设计</div>
+      <div class="desc">通过 System Prompt 定义 Agent 的角色、能力边界和行为规范，是塑造回答风格最直接的手段。</div>
+      <div class="points">
+        <div class="point hi">
+          <div class="point-icon">角</div>
+          <div><div class="point-name">角色定义 Role</div><div class="point-desc">你是谁？有什么能力？限制是什么？</div></div>
+        </div>
+        <div class="point">
+          <div class="point-icon">则</div>
+          <div><div class="point-name">行为规范 Rules</div><div class="point-desc">回答风格、语言、格式、禁止行为</div></div>
+        </div>
+        <div class="point">
+          <div class="point-icon">境</div>
+          <div><div class="point-name">背景上下文 Context</div><div class="point-desc">当前任务场景、工具说明、知识范围</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="code-card">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label">✗ 没有 System Prompt（agent3）</div></div>
+        <div class="c-body">
+          <div><span class="ln">1</span><span class="va">client.messages.create(</span></div>
+          <div><span class="ln">2</span><span class="va">&nbsp;&nbsp;</span><span class="prop">messages</span><span class="va">=history</span></div>
+          <div><span class="ln">3</span><span class="va">)</span></div>
+          <div><span class="ln">4</span><span class="cm"># 模型不知道自己是什么角色，风格随机</span></div>
+        </div>
+      </div>
+      <div class="arrow-row"><div>加入 System Prompt</div><span>↓</span></div>
+      <div class="code-card green">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">✓ agent4.py — 有角色定义</div></div>
+        <div class="c-body">
+          <div class="hl"><span class="ln">1</span><span class="va">SYSTEM </span><span class="kw">= </span><span class="st">"你是专业 AI 助手，简洁中文回复"</span></div>
+          <div><span class="ln">2</span></div>
+          <div><span class="ln">3</span><span class="va">client.messages.create(</span></div>
+          <div class="hl"><span class="ln">4</span><span class="va">&nbsp;&nbsp;</span><span class="prop">system</span><span class="va">=SYSTEM,</span></div>
+          <div><span class="ln">5</span><span class="va">&nbsp;&nbsp;</span><span class="prop">messages</span><span class="va">=history</span></div>
+          <div><span class="ln">6</span><span class="va">)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 5: Function Call ══════════════ -->
+<div class="slide" id="s5">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
+  <div class="page-id">// agent5.py &nbsp;—&nbsp; <span>工具调用 Function Call</span></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="tag">CONCEPT 05 · TOOL USE</div>
+      <div class="title"><em>Tool Use</em><br>工具调用</div>
+      <div class="desc">告诉模型「你有哪些工具」，模型决定何时调用，代码执行并把结果返回，完成推理闭环。</div>
+      <div class="flow">
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon f-model">LLM</div><div class="frow-line fl-green"></div></div>
+          <div class="frow-body"><div class="frow-name">① 模型决策</div><div class="frow-sub">stop_reason == "tool_use"</div></div>
+        </div>
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon f-tool">run</div><div class="frow-line fl-green"></div></div>
+          <div class="frow-body"><div class="frow-name">② 代码执行工具</div><div class="frow-sub">subprocess.run(command)</div></div>
+        </div>
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon f-result">res</div><div class="frow-line fl-dim"></div></div>
+          <div class="frow-body"><div class="frow-name">③ 返回 tool_result</div><div class="frow-sub">{"type": "tool_result", ...}</div></div>
+        </div>
+        <div class="frow">
+          <div class="frow-left"><div class="frow-icon f-model">LLM</div></div>
+          <div class="frow-body"><div class="frow-name dim">④ 最终回答</div><div class="frow-sub dim">stop_reason == "end_turn"</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="code-card green">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">agent5.py — tool use 核心</div></div>
+        <div class="c-body">
+          <div class="sec-t">// 1. 定义工具</div>
+          <div class="hl"><span class="ln">1</span><span class="va">TOOLS </span><span class="kw">= </span><span class="va">[{</span><span class="st">"name"</span><span class="va">: </span><span class="st">"run_command"</span><span class="va">,</span></div>
+          <div><span class="ln">2</span><span class="va">&nbsp;&nbsp;</span><span class="st">"description"</span><span class="va">: </span><span class="st">"执行 shell 命令"</span><span class="va">, ...}]</span></div>
+          <div class="sec-sep"></div>
+          <div class="sec-t">// 2. 调用时传入工具</div>
+          <div><span class="ln">3</span><span class="va">resp </span><span class="kw">= </span><span class="va">client.messages.create(</span></div>
+          <div class="hl"><span class="ln">4</span><span class="va">&nbsp;&nbsp;</span><span class="prop">tools</span><span class="va">=TOOLS, </span><span class="prop">messages</span><span class="va">=history</span></div>
+          <div><span class="ln">5</span><span class="va">)</span></div>
+          <div class="sec-sep"></div>
+          <div class="sec-t">// 3. 检查并执行</div>
+          <div class="hl"><span class="ln">6</span><span class="kw">if </span><span class="va">resp.stop_reason </span><span class="kw">== </span><span class="st">"tool_use"</span><span class="va">:</span></div>
+          <div><span class="ln">7</span><span class="va">&nbsp;&nbsp;</span><span class="kw">for </span><span class="va">b </span><span class="kw">in </span><span class="va">resp.content:</span></div>
+          <div><span class="ln">8</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="kw">if </span><span class="va">b.type </span><span class="kw">== </span><span class="st">"tool_use"</span><span class="va">:</span></div>
+          <div><span class="ln">9</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out </span><span class="kw">= </span><span class="fn">run_command</span><span class="va">(b.input[</span><span class="st">"command"</span><span class="va">])</span></div>
+          <div class="sec-sep"></div>
+          <div class="sec-t">// 4. 返回结果继续推理</div>
+          <div class="hl"><span class="ln">10</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;history.</span><span class="fn">append</span><span class="va">({</span><span class="st">"role"</span><span class="va">:</span><span class="st">"user"</span><span class="va">,</span></div>
+          <div><span class="ln">11</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="st">"content"</span><span class="va">:[{</span><span class="st">"type"</span><span class="va">:</span><span class="st">"tool_result"</span><span class="va">,</span></div>
+          <div><span class="ln">12</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="st">"tool_use_id"</span><span class="va">:b.id,</span><span class="st">"content"</span><span class="va">:out}]})</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SLIDE 6: Progressive Disclosure ══════════════ -->
+<div class="slide" id="s6">
+  <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
+  <div class="page-id">// agent6.py &nbsp;—&nbsp; <span>技能系统 · Skill System</span></div>
+  <div class="wrap">
+
+    <!-- 左侧：核心概念 -->
+    <div class="left">
+      <div class="tag">CONCEPT 06 · PROGRESSIVE DISCLOSURE</div>
+      <div class="title"><em>渐进式</em><br>披露</div>
+      <div class="desc">不把所有知识塞进 System Prompt —— 先只告诉模型"有什么"，等它真正需要时再按需加载完整内容。</div>
+
+      <!-- 两层对比 -->
+      <div class="pd-flow">
+        <div class="pd-step s1">
+          <div class="pd-step-tag">LAYER 1 · 始终存在</div>
+          <div class="pd-step-name">技能目录</div>
+          <div class="pd-step-desc">名称 + 一句描述<br>注入 System Prompt，轻量常驻</div>
+        </div>
+        <div class="pd-arrow">→</div>
+        <div class="pd-step s2">
+          <div class="pd-step-tag">LAYER 2 · 触发加载</div>
+          <div class="pd-step-name">完整知识体</div>
+          <div class="pd-step-desc">模型调用 load_skill<br>通过 tool_result 按需注入</div>
+        </div>
+      </div>
+
+      <!-- 对比：塞满 vs 渐进 -->
+      <div class="pd-compare">
+        <div class="pd-card bad">
+          <div class="pd-card-head">✗ 全量塞入 System Prompt</div>
+          <div class="pd-card-body">
+            <div class="pd-row"><div class="pd-bar" style="width:7vw;background:rgba(239,68,68,0.4)"></div><div class="pd-bar-label" style="color:#EF4444">skill×10 全文</div></div>
+            <div class="pd-row"><div class="pd-bar" style="width:3vw;background:rgba(255,255,255,0.1)"></div><div class="pd-bar-label" style="color:#334155">history</div></div>
+            <div class="pd-note">每次调用都消耗大量 token<br>大多数知识根本用不到</div>
+          </div>
+        </div>
+        <div class="pd-card good">
+          <div class="pd-card-head">✓ 渐进式披露</div>
+          <div class="pd-card-body">
+            <div class="pd-row"><div class="pd-bar" style="width:1.2vw;background:#22C55E"></div><div class="pd-bar-label" style="color:#22C55E">描述 ~50 tok</div></div>
+            <div class="pd-row"><div class="pd-bar" style="width:3vw;background:rgba(255,255,255,0.1)"></div><div class="pd-bar-label" style="color:#334155">history</div></div>
+            <div class="pd-row"><div class="pd-bar" style="width:3.5vw;background:rgba(34,197,94,0.25);border:1px dashed rgba(34,197,94,0.4)"></div><div class="pd-bar-label" style="color:#22613A">↑ 按需 ~400 tok</div></div>
+            <div class="pd-note" style="color:#166534">不需要时零消耗<br>需要时立刻可用</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧：上下文窗口可视化 + 洞见 -->
+    <div class="right">
+
+      <div class="ctx-win">
+        <div class="ctx-win-head"><span>// Context Window 视图</span><span>每次 API 调用</span></div>
+        <div class="ctx-win-body">
+          <div class="ctx-seg sys">
+            <div class="ctx-seg-label">System Prompt &nbsp;— 角色 / 规则</div>
+            <div class="ctx-tok">~200 tok</div>
+          </div>
+          <div class="ctx-seg l1">
+            <div class="ctx-seg-label">Layer 1 &nbsp;— 技能目录（描述）&nbsp;★ 始终</div>
+            <div class="ctx-tok">~50 tok</div>
+          </div>
+          <div class="ctx-seg hist">
+            <div class="ctx-seg-label">对话历史 history[ ]</div>
+            <div class="ctx-tok">动态增长</div>
+          </div>
+          <div class="ctx-seg l2">
+            <div class="ctx-seg-label">Layer 2 &nbsp;— 技能全文&nbsp;★ 仅按需</div>
+            <div class="ctx-tok">~400 tok ×N</div>
+          </div>
+        </div>
+        <div class="ctx-trigger">触发条件：<span>stop_reason == "tool_use"</span> &nbsp;&amp;&amp;&nbsp; <span>block.name == "load_skill"</span></div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-icon">KEY</div>
+        <div class="insight-text">
+          渐进式披露的本质是<strong>推迟信息注入</strong>——<br>
+          System Prompt 只声明"存在感"，完整知识在真正被需要的那一刻才进入上下文，避免无效 token 消耗，同时保持无限可扩展。
+        </div>
+      </div>
+
+      <div class="code-card green">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">agent6.py — 两层实现</div></div>
+        <div class="c-body" style="padding:0.75vw 1.3vw;font-family:'JetBrains Mono',monospace;font-size:0.76vw;line-height:1.75">
+          <div class="sec-t">// Layer 1：只注入描述</div>
+          <div><span class="ln">1</span><span class="va">SYSTEM </span><span class="kw">+= </span><span class="va">SKILL_LOADER.</span><span class="fn">get_descriptions</span><span class="va">()</span>&nbsp;<span class="cm"># "name: desc"</span></div>
+          <div class="sec-sep"></div>
+          <div class="sec-t">// Layer 2：按需返回全文</div>
+          <div class="hl"><span class="ln">2</span><span class="kw">elif </span><span class="va">block.name </span><span class="kw">== </span><span class="st">"load_skill"</span><span class="va">:</span></div>
+          <div class="hl"><span class="ln">3</span><span class="va">&nbsp;&nbsp;content </span><span class="kw">= </span><span class="va">SKILL_LOADER.</span><span class="fn">get_content</span><span class="va">(block.input[</span><span class="st">"skill_name"</span><span class="va">])</span></div>
+          <div class="sec-sep"></div>
+          <div class="sec-t">// 扩展零代价：加文件即加技能</div>
+          <div><span class="ln">4</span><span class="va">skills/</span><span class="fn">new_topic</span><span class="va">/SKILL.md </span><span class="cm">→ 自动发现 ✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end deck -->
+
+<!-- 导航条 -->
+<div class="nav">
+  <div class="nav-btn" id="prev">&#8592;</div>
+  <div class="nav-dots" id="dots"></div>
+  <div class="nav-count" id="count">1 / 6</div>
+  <div class="nav-btn" id="next">&#8594;</div>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const countEl = document.getElementById('count');
+let cur = 0;
+
+// 生成 dots
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'nav-dot' + (i === 0 ? ' on' : '');
+  d.onclick = () => go(i);
+  dotsEl.appendChild(d);
+});
+
+function go(n) {
+  slides[cur].classList.remove('active');
+  dotsEl.children[cur].classList.remove('on');
+  cur = (n + slides.length) % slides.length;
+  slides[cur].classList.add('active');
+  dotsEl.children[cur].classList.add('on');
+  countEl.textContent = `${cur + 1} / ${slides.length}`;
+}
+
+document.getElementById('prev').onclick = () => go(cur - 1);
+document.getElementById('next').onclick = () => go(cur + 1);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(cur + 1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(cur - 1);
+});
+</script>
+</body>
+</html>
