@@ -315,38 +315,38 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
   <div class="cover-wrap">
     <div class="cover-left">
-      <div class="chip"><div class="chip-dot"></div>BUILD AGENT · EP 05 · ENGINEERING SUBAGENTS</div>
+      <div class="chip"><div class="chip-dot"></div>BUILD AGENT · EP 05 · STEP08 SUBAGENTS</div>
       <div class="cover-title">Agent</div>
       <div class="cover-green">子代理实现</div>
-      <div class="desc" style="max-width:39vw;margin-bottom:1vw">这一期不只讲 step08 的演示代码，而是看主项目里真正落地的子代理系统：职位预设、工具白名单、独立 runner、并发 dispatch，以及主 history 如何只保留摘要。</div>
+      <div class="desc" style="max-width:39vw;margin-bottom:1vw">这一期直接拆 <span class="file">step08_subagent.py</span>：主 Agent 什么时候派人、子代理怎么启动、工具权限怎么收紧、多个 dispatch 如何并发，以及主 history 为什么只保留一段回禀。</div>
       <div class="code-card green" style="margin-bottom:1vw;max-width:39vw">
-        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">agent/tools/dispatch.py · execute()</div></div>
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label g">step08_subagent.py · run_subagent()</div></div>
         <div class="c-body">
-          <div><span class="ln">01</span><span class="va">spec </span><span class="kw">= </span><span class="va">subagent_registry.</span><span class="fn">get</span><span class="va">(agent_type)</span></div>
-          <div><span class="ln">02</span><span class="va">sub_registry </span><span class="kw">= </span><span class="fn">ToolRegistry</span><span class="va">()</span></div>
-          <div><span class="ln">03</span><span class="kw">for </span><span class="va">tool_name </span><span class="kw">in </span><span class="va">spec.tool_names:</span></div>
-          <div><span class="ln">04</span><span class="va">&nbsp;&nbsp;sub_registry.</span><span class="fn">register</span><span class="va">(parent_registry.</span><span class="fn">get</span><span class="va">(tool_name))</span></div>
-          <div class="hl"><span class="ln">05</span><span class="va">runner </span><span class="kw">= </span><span class="fn">runner_factory</span><span class="va">(spec, sub_registry)</span></div>
-          <div class="hl"><span class="ln">06</span><span class="va">final </span><span class="kw">= </span><span class="va">runner.</span><span class="fn">step</span><span class="va">([{</span><span class="st">"role"</span><span class="va">: </span><span class="st">"user"</span><span class="va">, </span><span class="st">"content"</span><span class="va">: task}])</span></div>
+          <div><span class="ln">01</span><span class="va">agent_type </span><span class="kw">= </span><span class="fn">resolve_subagent_type</span><span class="va">(agent_type)</span></div>
+          <div><span class="ln">02</span><span class="va">spec </span><span class="kw">= </span><span class="va">SUBAGENT_SPECS[agent_type]</span></div>
+          <div><span class="ln">03</span><span class="va">tools </span><span class="kw">= </span><span class="va">[_TOOL_SCHEMAS[t] </span><span class="kw">for </span><span class="va">t </span><span class="kw">in </span><span class="va">spec[</span><span class="st">"tools"</span><span class="va">]]</span></div>
+          <div><span class="ln">04</span><span class="va">messages </span><span class="kw">= </span><span class="va">[{</span><span class="st">"role"</span><span class="va">:</span><span class="st">"user"</span><span class="va">, </span><span class="st">"content"</span><span class="va">:task}]</span></div>
+          <div class="hl"><span class="ln">05</span><span class="kw">for </span><span class="va">turn </span><span class="kw">in </span><span class="fn">range</span><span class="va">(turns): llm + tool loop</span></div>
+          <div class="hl"><span class="ln">06</span><span class="kw">return </span><span class="va">final_summary</span></div>
         </div>
       </div>
       <div style="display:flex;gap:0.5vw;flex-wrap:wrap">
         <span class="badge-g">dispatch_subagent</span>
-        <span class="badge-i">AgentRunner</span>
+        <span class="badge-i">Message Loop</span>
         <span class="badge-o">Tool Whitelist</span>
         <span class="badge-dim">Parallel Dispatch</span>
       </div>
     </div>
     <div class="cover-right">
       <div style="font-family:'JetBrains Mono',monospace;font-size:0.65vw;letter-spacing:0;color:#1E3A2A;margin-bottom:1.2vw">// OVERVIEW</div>
-      <div class="info-row hi"><div class="info-icon">01</div><div><div class="info-name">Architecture</div><div class="info-sub">loop → runner → registry → dispatch</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">02</div><div><div class="info-name">Isolation</div><div class="info-sub">独立 history + 独立 AgentRunner</div></div></div>
-      <div class="info-row hi3"><div class="info-icon">03</div><div><div class="info-name">Roles</div><div class="info-sub">五种宫廷职位 + 白名单权限</div></div></div>
-      <div class="info-row hi"><div class="info-icon">04</div><div><div class="info-name">Concurrency</div><div class="info-sub">同帧多个 dispatch 并发执行</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">05</div><div><div class="info-name">Guardrails</div><div class="info-sub">无递归 · 无私改 todo · 结果压缩</div></div></div>
+      <div class="info-row hi"><div class="info-icon">01</div><div><div class="info-name">Dispatch Tool</div><div class="info-sub">主 Agent 通过 dispatch_subagent 派差</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">02</div><div><div class="info-name">Fresh Messages</div><div class="info-sub">子代理从干净 messages 开始</div></div></div>
+      <div class="info-row hi3"><div class="info-icon">03</div><div><div class="info-name">Role Specs</div><div class="info-sub">五种宫廷职位 + 工具白名单</div></div></div>
+      <div class="info-row hi"><div class="info-icon">04</div><div><div class="info-name">Parallel Branch</div><div class="info-sub">多个 dispatch_blocks 才进线程池</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">05</div><div><div class="info-name">Result Compression</div><div class="info-sub">主 history 只接最终回禀</div></div></div>
     </div>
   </div>
-  <div class="footer"><div>agent/runner.py · agent/tools/dispatch.py · agent/subagents/registry.py</div><div><span>9 SLIDES</span></div></div>
+  <div class="footer"><div>build-agent-example/code/step08_subagent.py</div><div><span>9 SLIDES</span></div></div>
 </div>
 
 <div class="slide" id="s2">
@@ -384,11 +384,11 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
   <div class="page-id">// definition &nbsp;·&nbsp; <span>子代理的价值与地位</span></div>
   <div class="two-col">
     <div class="col">
-      <div class="tag">DEFINE 02 · ROLE &amp; POSITION</div>
+      <div class="tag">DEFINE 03 · ROLE &amp; POSITION</div>
       <div class="h-main">子代理是工具箱里<br><em>"上下文隔离"这个原语</em></div>
-      <div class="desc">在工程代码里，子代理以 <span class="file">dispatch_subagent</span> 工具出现。它不是平级协作者，而是主 Agent 调用的一个特殊 tool：内部临时跑一个完整 AgentRunner。</div>
+      <div class="desc">在 <span class="file">step08_subagent.py</span> 里，子代理以 <span class="file">dispatch_subagent</span> 工具出现。它不是平级协作者，而是主 Agent 调用的特殊工具：内部临时跑一套独立 message loop。</div>
       <div class="info-row hi"><div class="info-icon">是</div><div><div class="info-name">主 Agent 的一个工具</div><div class="info-sub">主帧里以 tool_use 调用, 主 history 只多一条 tool_result</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">是</div><div><div class="info-name">一段临时 AgentRunner</div><div class="info-sub">独立 history、独立 system、独立白名单, 跑完即焚</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">是</div><div><div class="info-name">一段临时 message loop</div><div class="info-sub">独立 history、独立 system、独立白名单, 跑完即焚</div></div></div>
       <div class="info-row hi3"><div class="info-icon">非</div><div><div class="info-name">不是平级协作者</div><div class="info-sub">主→子单向调度, 子不能再派子, 也不能改主 todo / 主 history</div></div></div>
     </div>
     <div class="col">
@@ -399,7 +399,7 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
           <tr><td>对谁负责</td><td>对用户的下一句回答</td><td>对一段 task 描述</td></tr>
           <tr><td>生命周期</td><td>跨多轮对话</td><td>一次调用即结束</td></tr>
           <tr><td>权限边界</td><td>全工具 + dispatch + todo</td><td>子集白名单, 无 dispatch · 无 todo</td></tr>
-          <tr><td>history</td><td>持久 · 三层记忆 · 会被压缩</td><td>临时, 不入主 history</td></tr>
+          <tr><td>history</td><td>持久 · 用户多轮对话</td><td>临时, 不入主 history</td></tr>
           <tr><td>失败影响面</td><td>主对话中断</td><td>仅一条 tool_result 回传 Error</td></tr>
           <tr><td>主线增量</td><td>—</td><td>1 条 tool_result (一段中文汇报)</td></tr>
         </tbody>
@@ -416,10 +416,10 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
     <div class="col">
       <div class="tag">IDENTITY 04 · PRESET ROLES</div>
       <div class="h-main">一个 dispatcher<br><em>五种宫廷职位</em></div>
-      <div class="desc">工程化版本把“身份文案”和“权限白名单”分离。模板只写职责口吻，真正能用什么工具由 <span class="file">registry.py</span> 决定。</div>
-      <div class="info-row hi"><div class="info-icon">文</div><div><div class="info-name">模板层</div><div class="info-sub">templates/subagents/{name}.md 写身份、约束、回禀格式</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">权</div><div><div class="info-name">代码层</div><div class="info-sub">SubagentSpec.tool_names 写工具白名单, 不受 prompt 漂移影响</div></div></div>
-      <div class="info-row hi3"><div class="info-icon">兼</div><div><div class="info-name">旧别名兼容</div><div class="info-sub">researcher → dongchang_tanshi, general → neiguan_yingzao</div></div></div>
+      <div class="desc">这页不是只看人设。真正的工程点是：<span class="file">SUBAGENT_SPECS</span> 同时绑定职位 prompt、工具白名单和最大回合数；模型只能从 schema 枚举里选择身份。</div>
+      <div class="info-row hi"><div class="info-icon">文</div><div><div class="info-name">system_prompt</div><div class="info-sub">build_subagent_prompt(title, duty, boundary)</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">权</div><div><div class="info-name">tools 白名单</div><div class="info-sub">tools = [_TOOL_SCHEMAS[t] for t in spec["tools"]]</div></div></div>
+      <div class="info-row hi3"><div class="info-icon">限</div><div><div class="info-name">max_turns 防跑飞</div><div class="info-sub">短任务 8 轮, 写文件营造类最多 20 轮</div></div></div>
     </div>
     <div class="col">
       <table class="g-table">
@@ -442,14 +442,14 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
   <div class="page-id">// lifecycle &nbsp;·&nbsp; <span>一次派遣的完整流程</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">FLOW 06 · END TO END</div>
+      <div class="tag">FLOW 05 · END TO END</div>
       <div class="h-main">从用户一句话<br><em>到子代理回禀</em></div>
-      <div class="desc">理解子代理最好的方式，是跟着一条调用链走：主模型发 dispatch，工具创建子 runner，子 runner 自己循环用工具，最后结果压缩回主线。</div>
+      <div class="desc">理解子代理最好的方式，是跟着一条调用链走：主模型发 dispatch，主循环调用 <span class="file">run_subagent</span>，子代理自己循环用工具，最后结果压缩回主线。</div>
       <div class="flow-col">
         <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">1</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">User 给主 Agent 下旨</div><div class="frow-sub">“派东厂探事去抓两个网页并总结差异”</div></div></div>
         <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">2</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">主模型 emits dispatch_subagent</div><div class="frow-sub">agent_type + task + purpose</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">3</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">Dispatch 工具启动子 runner</div><div class="frow-sub">临时 history = [{role:user, content:task}]</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">4</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name">子 runner 内部 tool_use 循环</div><div class="frow-sub">web_fetch / grep / read_file 输出留在子上下文</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">3</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">主循环调用 run_subagent</div><div class="frow-sub">临时 messages = [{role:user, content:task}]</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">4</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name">子 message loop 内部调用工具</div><div class="frow-sub">web_fetch / grep / read_file 输出留在子上下文</div></div></div>
         <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">5</div></div><div class="frow-body"><div class="frow-name">final summary 回填主 history</div><div class="frow-sub">主线只多一条 tool_result</div></div></div>
       </div>
     </div>
@@ -473,36 +473,34 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s7">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-c"></div></div>
-  <div class="page-id">// concurrency &nbsp;·&nbsp; <span>并发子代理提高效率</span></div>
+  <div class="page-id">// source &nbsp;·&nbsp; <span>主循环如何分流 tool_use</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">CONCURRENCY 05 · PARALLEL DISPATCH</div>
-      <div class="h-main">并发不是命令<br><em>是同帧多个 tool_use</em></div>
-      <div class="desc">工程化版本在 <span class="file">AgentRunner._execute_tool_blocks</span> 里做并发分组：连续多个 <span class="file">concurrency_safe</span> 工具会并行执行，再按原顺序回填。</div>
-      <div class="info-row hi"><div class="info-icon">↑</div><div><div class="info-name">该并发</div><div class="info-sub">差事互不依赖、读多写少、I/O 等待时间长</div></div></div>
-      <div class="info-row hi3"><div class="info-icon">↓</div><div><div class="info-name">不该并发</div><div class="info-sub">后步依赖前步、共享可写资源、需要顺序确认</div></div></div>
-      <div class="insight"><div class="insight-icon">TRIGGER</div><div class="insight-text">只有模型同一轮真的发出多个 <strong>dispatch_subagent</strong> 时才会并发。简单任务可能被模型用一条 <strong>run_command</strong> 直接办完。</div></div>
+      <div class="tag">SOURCE 06 · DISPATCH SPLIT</div>
+      <div class="h-main">不是所有工具<br><em>都走同一条路</em></div>
+      <div class="desc">主循环拿到模型返回的 <span class="file">tool_use</span> 后，先把普通工具和 <span class="file">dispatch_subagent</span> 拆开。普通工具顺序执行，子代理工具根据数量决定串行还是并发。</div>
+      <div class="info-row hi"><div class="info-icon">1</div><div><div class="info-name">tool_blocks</div><div class="info-sub">本轮 assistant 返回的所有 tool_use</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">2</div><div><div class="info-name">other_blocks</div><div class="info-sub">run_command / web_fetch / load_skill / update_todos</div></div></div>
+      <div class="info-row hi3"><div class="info-icon">3</div><div><div class="info-name">dispatch_blocks</div><div class="info-sub">真正需要启动子 message loop 的任务</div></div></div>
+      <div class="insight"><div class="insight-icon">KEY</div><div class="insight-text">这页要让观众看懂：子代理不是魔法，它只是主循环里对 <strong>dispatch_subagent</strong> 这类工具的特殊执行分支。</div></div>
     </div>
     <div class="col">
-      <div class="terminal">
-        <div class="term-bar"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="term-title">timeline.cmp</div></div>
-        <div class="term-body">
-          <div><span class="dim">// runner.py</span></div>
-          <div><span class="prompt">tool_use:</span> dispatch_subagent(step01)</div>
-          <div><span class="prompt">tool_use:</span> dispatch_subagent(step02)</div>
-          <div><span class="prompt">tool_use:</span> dispatch_subagent(step03)</div>
-          <div><span class="warn">[并发执行 3 个工具]</span></div>
-          <div>&nbsp;</div>
-          <div><span class="dim">// pool.map 保证结果按输入顺序返回</span></div>
-          <div><span class="out">tool_result #1 → step01 summary</span></div>
-          <div><span class="out">tool_result #2 → step02 summary</span></div>
-          <div><span class="out">tool_result #3 → step03 summary</span></div>
+      <div class="code-card ind">
+        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label i">step08_subagent.py · main loop</div></div>
+        <div class="c-body">
+          <div><span class="ln">01</span><span class="va">tool_blocks </span><span class="kw">= </span><span class="va">[b </span><span class="kw">for </span><span class="va">b </span><span class="kw">in </span><span class="va">message.content </span><span class="kw">if </span><span class="va">b.type == </span><span class="st">"tool_use"</span><span class="va">]</span></div>
+          <div><span class="ln">02</span><span class="va">dispatch_blocks </span><span class="kw">= </span><span class="va">[b </span><span class="kw">for </span><span class="va">b </span><span class="kw">in </span><span class="va">tool_blocks </span><span class="kw">if </span><span class="va">b.name == </span><span class="st">"dispatch_subagent"</span><span class="va">]</span></div>
+          <div><span class="ln">03</span><span class="va">other_blocks </span><span class="kw">= </span><span class="va">[b </span><span class="kw">for </span><span class="va">b </span><span class="kw">in </span><span class="va">tool_blocks </span><span class="kw">if </span><span class="va">b.name != </span><span class="st">"dispatch_subagent"</span><span class="va">]</span></div>
+          <div class="hl"><span class="ln">04</span><span class="kw">for </span><span class="va">block </span><span class="kw">in </span><span class="va">other_blocks: execute_basic_tool(...)</span></div>
+          <div class="hl"><span class="ln">05</span><span class="kw">if </span><span class="fn">len</span><span class="va">(dispatch_blocks) &gt; 1: ThreadPoolExecutor(...)</span></div>
+          <div><span class="ln">06</span><span class="kw">else</span><span class="va">: run_subagent(...)  </span><span class="dim">// 单个就直接跑</span></div>
+          <div><span class="ln">07</span><span class="kw">return </span><span class="va">tool_results in original order</span></div>
         </div>
       </div>
       <div style="display:flex;gap:0.5vw;margin-top:0.8vw;flex-wrap:wrap">
-        <span class="badge-g">不依赖</span>
-        <span class="badge-i">同帧 emit</span>
-        <span class="badge-o">order preserved</span>
+        <span class="badge-g">先分流</span>
+        <span class="badge-i">再执行</span>
+        <span class="badge-o">按原顺序回填</span>
       </div>
     </div>
   </div>
@@ -510,31 +508,34 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s8">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-i"></div></div>
-  <div class="page-id">// guardrails &nbsp;·&nbsp; <span>工程取舍与安全边界</span></div>
-  <div class="two-col">
+  <div class="page-id">// demo &nbsp;·&nbsp; <span>如何稳定演示并发</span></div>
+  <div class="two-col wide-r">
     <div class="col">
-      <div class="tag">DESIGN 08 · SAFETY &amp; TRADEOFFS</div>
-      <div class="h-main">子代理能干活<br><em>但不能乱管家</em></div>
-      <div class="desc">工程化版本把权限收紧在代码层，而不是只靠 prompt 祈祷。身份可以活泼，边界必须硬。</div>
-      <div class="dec-grid">
-        <div class="dec-item" style="border-color:rgba(34,197,94,0.2);background:rgba(34,197,94,0.03)"><div class="dec-q">No Recursive Dispatch</div><div class="dec-a" style="color:#4ADE80">白名单不含 dispatch</div><div class="dec-note">子代理不能继续派子代理, 防止无限嵌套。</div></div>
-        <div class="dec-item" style="border-color:rgba(99,102,241,0.22);background:rgba(99,102,241,0.03)"><div class="dec-q">No Main Todo</div><div class="dec-a" style="color:#818CF8">白名单不含 update_todos</div><div class="dec-note">计划状态归主 Agent 管, 子代理只交局部结果。</div></div>
-        <div class="dec-item" style="border-color:rgba(251,146,60,0.2);background:rgba(251,146,60,0.03)"><div class="dec-q">Max Turns</div><div class="dec-a" style="color:#FB923C">每种身份有轮数上限</div><div class="dec-note">探索失败要回报, 不能无限试错。</div></div>
-        <div class="dec-item" style="border-color:rgba(34,211,238,0.2);background:rgba(34,211,238,0.03)"><div class="dec-q">Model Routing</div><div class="dec-a" style="color:#22D3EE">并发由模型触发</div><div class="dec-note">模型没发多个 dispatch, 就不会并发。</div></div>
-      </div>
+      <div class="tag">DEMO 07 · MODEL ROUTING</div>
+      <div class="h-main">并发能力在代码里<br><em>触发权在模型手里</em></div>
+      <div class="desc">你之前那次“统计 step01/02/03 行数”很典型：同一个需求，模型可能选择一条 <span class="file">wc -l</span> 顺序办完，也可能选择三个 <span class="file">dispatch_subagent</span> 并发派发。</div>
+      <div class="info-row hi3"><div class="info-icon">弱</div><div><div class="info-name">不明确说派遣</div><div class="info-sub">模型倾向: update_todos → run_command 一次统计三文件</div></div></div>
+      <div class="info-row hi"><div class="info-icon">强</div><div><div class="info-name">明确拆成独立差事</div><div class="info-sub">模型更可能: 同一轮发出 3 个 dispatch_subagent</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">稳</div><div><div class="info-name">演示时加一句</div><div class="info-sub">“同时派三个小太监，分别统计，再汇总”</div></div></div>
+      <div class="insight"><div class="insight-icon">POINT</div><div class="insight-text">这不是 bug，而是路由策略：模型会在“直接工具更便宜”和“派子代理更隔离”之间做选择。</div></div>
     </div>
     <div class="col">
-      <div class="code-card ind">
-        <div class="c-head"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="c-label i">agent/runner.py · safe group</div></div>
-        <div class="c-body">
-          <div><span class="ln">01</span><span class="kw">if </span><span class="va">tool.concurrency_safe:</span></div>
-          <div><span class="ln">02</span><span class="va">&nbsp;&nbsp;group </span><span class="kw">= </span><span class="va">collect_contiguous_safe_tools()</span></div>
-          <div class="hl"><span class="ln">03</span><span class="va">&nbsp;&nbsp;</span><span class="kw">with </span><span class="fn">ThreadPoolExecutor</span><span class="va">(max_workers=</span><span class="fn">len</span><span class="va">(group)) </span><span class="kw">as </span><span class="va">pool:</span></div>
-          <div><span class="ln">04</span><span class="va">&nbsp;&nbsp;&nbsp;&nbsp;contents </span><span class="kw">= </span><span class="fn">list</span><span class="va">(pool.</span><span class="fn">map</span><span class="va">(execute, group))</span></div>
-          <div class="hl"><span class="ln">05</span><span class="kw">return </span><span class="va">tool_results_in_original_order</span></div>
+      <div class="terminal">
+        <div class="term-bar"><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div><div class="term-title">prompt_compare.log</div></div>
+        <div class="term-body">
+          <div><span class="dim">// 容易被直接工具办掉</span></div>
+          <div><span class="prompt">你:</span> 分别统计 step01、step02、step03 的代码行数</div>
+          <div><span class="out">agent:</span> wc -l step01.py step02.py step03.py</div>
+          <div><span class="warn">结果:</span> 没有并发, 因为一条命令更经济</div>
+          <div>&nbsp;</div>
+          <div><span class="dim">// 稳定演示子代理并发</span></div>
+          <div><span class="prompt">你:</span> 同时派三个小太监分别统计三个文件</div>
+          <div><span class="out">tool_use:</span> dispatch_subagent(step01)</div>
+          <div><span class="out">tool_use:</span> dispatch_subagent(step02)</div>
+          <div><span class="out">tool_use:</span> dispatch_subagent(step03)</div>
+          <div><span class="warn">代码分支:</span> len(dispatch_blocks) &gt; 1 → ThreadPoolExecutor</div>
         </div>
       </div>
-      <div class="insight"><div class="insight-icon">READ</div><div class="insight-text">如果你想稳定演示并发, 用户指令要明确“分别派多个小太监”。否则模型可能判断一条命令更经济, 直接走普通工具。</div></div>
     </div>
   </div>
 </div>
@@ -546,7 +547,7 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
     <div class="col">
       <div class="tag">SUMMARY 09 · MENTAL MODEL</div>
       <div class="h-main">一句话理解<br><em>工程化子代理</em></div>
-      <div class="desc">它是一个特殊工具：输入是差事和身份，内部临时启动一个受限 AgentRunner，输出是一段高密度回禀。主 Agent 继续负责计划、调度和最终回答。</div>
+      <div class="desc">它是一个特殊工具：输入是差事和身份，内部临时启动一个受限 message loop，输出是一段高密度回禀。主 Agent 继续负责计划、调度和最终回答。</div>
       <div style="display:flex;gap:0.5vw;flex-wrap:wrap">
         <span class="badge-g">独立 history</span>
         <span class="badge-i">工具白名单</span>
@@ -558,8 +559,8 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
       <div class="flow-col">
         <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">s07</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name dim">Plan</div><div class="frow-sub dim">主 Agent 知道要做什么</div></div></div>
         <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">s08</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">Dispatch</div><div class="frow-sub">把细节交给独立上下文执行</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">agent/</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">Engineering</div><div class="frow-sub">SubagentRegistry + DispatchTool + AgentRunner</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">next</div></div><div class="frow-body"><div class="frow-name">Routing</div><div class="frow-sub">进一步可做硬路由、任务拆分器、结果聚合器</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">s08</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">Whitelist</div><div class="frow-sub">角色 prompt + 工具白名单 + max_turns</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">s08</div></div><div class="frow-body"><div class="frow-name">Parallel</div><div class="frow-sub">同一轮多个 dispatch_blocks 才进入线程池</div></div></div>
       </div>
     </div>
   </div>
