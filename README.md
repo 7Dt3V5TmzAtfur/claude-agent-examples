@@ -2,10 +2,20 @@
 
 用 Python 从零构建 AI Agent。包含两部分：
 
-1. **`agent/`** — 一个完整可用的多轮对话 Agent，带三层记忆系统、自动压缩、可插拔技能、任务规划与子代理派遣。
+1. **`agent/`** — 一个完整可用的多轮对话 Agent，带三层记忆系统、自动压缩、可插拔技能、任务规划、子代理派遣与 Agent Team 固定班底。
 2. **[build-agent-example/](build-agent-example/)** — 9 个渐进式教学示例（step01 → step09），从单次对话到 Tool Use + Skills + Todolist + Subagent + Agent Team。每个示例都配有同名讲解文档。
 
 配套讲解 PPT 见 [ppt/](ppt/)。
+
+---
+
+## 进阶项目推荐：Emperor Agent
+
+如果你已经理解本仓库 step01 → step09 的核心原理，可以继续看一个更完整的产品化形态：
+
+[TheSyart/emperor-agent](https://github.com/TheSyart/emperor-agent) — 一个本地运行的皇帝风格 AI Agent，带 Vue WebUI、多模型提供商、流式聊天、工具、Skills、记忆系统和 token 用量统计。
+
+它适合作为本仓库的进阶展示：从命令行教学示例进阶到 WebUI 交互体验，从单一 Claude API 调用进阶到多模型提供商接入，从基础工具调用进阶到工具、技能、记忆和 telemetry 的完整组合。
 
 ---
 
@@ -38,12 +48,14 @@ agent/
 ├── compactor.py            历史压缩 → 情景记忆 + MEMORY.md
 ├── context.py              system prompt 组装（Jinja2）
 ├── skills.py               技能加载器
+├── team.py                 Agent Team：文件 inbox + 队友状态 + 持久线程
 ├── telemetry.py            token 用量记录与压缩触发判断
 ├── subagents/              子代理 spec + registry（从模板加载身份）
 └── tools/                  内置工具
     ├── shell / web / filesystem / search / skills
     ├── todo.py             update_todos —— 任务规划 todolist
-    └── dispatch.py         dispatch_subagent —— 派遣子代理（支持并发）
+    ├── dispatch.py         dispatch_subagent —— 派遣子代理（支持并发）
+    └── team.py             spawn/list/send/read/broadcast —— 固定队友协作
 
 templates/
 ├── SOUL.md                 Agent 灵魂档案（人格 / 使命 / 边界，只读）
@@ -66,6 +78,10 @@ memory/                     运行期产物（已 gitignore）
 ├── history.jsonl           原始对话日志
 ├── tokens.jsonl            按调用记录 token 用量
 └── YYYY-MM-DD.md           每日情景记忆，压缩时生成
+
+.team/                      运行期团队状态（已 gitignore）
+├── config.json             队友 name / role / status
+└── inbox/*.jsonl           每个成员一个文件收件箱
 
 skills/                     可插拔技能包
 └── {name}/SKILL.md         技能描述（YAML frontmatter + Markdown）
@@ -94,6 +110,8 @@ skills/                     可插拔技能包
 | `load_skill` | 按需加载 `skills/{name}/SKILL.md` 进上下文 |
 | `update_todos` | 维护当前差事的 todolist（同时只允许一个 in_progress） |
 | `dispatch_subagent` | 派遣预设身份的小太监独立办差，仅回传一段总结 |
+| `spawn_teammate` / `list_teammates` | 召入固定队友，并查看团队状态 |
+| `send_message` / `read_inbox` / `broadcast` | 通过 `.team/inbox/*.jsonl` 给队友发信、读回禀或广播 |
 
 ### 任务规划：todolist
 
@@ -135,6 +153,36 @@ assistant tool_use:
 ```
 
 注意：这是**模型调度触发**的能力。如果某个任务可以用一条普通命令高效完成，例如 `wc -l a.py b.py c.py`，模型可能直接调用 `run_command`，不会强制派子代理。要稳定触发并发派遣，可以在指令里明确说“分别派三个小太监 / 并发统计 / 每个文件单独派人”。
+
+### Agent Team 固定班底
+
+Agent Team 面向长期项目和固定角色协作。主 Agent 可用 `spawn_teammate(name, role, prompt)` 召入队友；队友拥有独立线程、独立上下文和自己的 inbox。办完当前任务后，队友不会销毁，而是回到 `idle` 等下一封消息。
+
+运行期状态写在根目录 `.team/`：
+
+```text
+.team/
+├── config.json
+└── inbox/
+    ├── lead.jsonl
+    ├── alice.jsonl
+    └── reviewer.jsonl
+```
+
+`MessageBus` 的规则很简单：发送消息就是向目标 `{name}.jsonl` 追加一行 JSON；读取 inbox 就是读出所有消息后清空文件。支持的消息类型包括 `message / broadcast / shutdown_request / shutdown_response / plan_approval_response`。
+
+队友状态：
+
+- `working / idle`：当前进程里的队友线程还活着。
+- `offline`：`.team/config.json` 里有这个队友，但程序重启后旧线程已经消失；需要再次 `spawn_teammate` 唤回。
+- `shutdown`：队友已主动退出。
+
+固定队友的工具白名单包含基础工具和通信工具：`run_command / web_fetch / load_skill / read_file / write_file / glob / grep / send_message / read_inbox`。不包含 `dispatch_subagent` 和 `update_todos`，避免递归调度和污染主计划。
+
+CLI 快捷命令：
+
+- `/team`：查看团队成员状态。
+- `/inbox`：读取并清空 lead 的 inbox。
 
 ---
 
@@ -188,18 +236,3 @@ assistant tool_use:
 - [第四期：Agent 任务规划](ppt/第四期:agent任务规划.html)
 - [第五期：Agent 子代理的实现](ppt/第五期:agent子代理的实现.html)
 - [第六期：Agent Team 团队协作](ppt/第六期-agent团队协作.html)
-
----
-
-## 延伸项目
-
-学完本仓库的 step01 → step09 后，如果想看一个更完整的产品化形态，可以继续参考：
-
-[TheSyart/emperor-agent](https://github.com/TheSyart/emperor-agent) — 一个本地运行的皇帝风格 AI Agent，带 Vue WebUI、多模型提供商、流式聊天、工具、Skills、记忆系统和 token 用量统计。
-
-它适合作为本仓库的进阶展示：
-
-- 从命令行教学示例，进阶到 WebUI 交互体验；
-- 从单一 Claude API 调用，进阶到多模型提供商接入；
-- 从基础工具调用，进阶到工具、技能、记忆和 telemetry 的完整组合；
-- 从“手搓 Agent 原理”，进阶到“可体验的 Agent 产品雏形”。
