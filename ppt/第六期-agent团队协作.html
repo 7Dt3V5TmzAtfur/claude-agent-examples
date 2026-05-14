@@ -69,6 +69,8 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 .code-card{background:#020810;border:1px solid rgba(255,255,255,.06);border-radius:.7vw;overflow:hidden}
 .code-card.green{border-color:rgba(34,197,94,.2)}.code-card.ind{border-color:rgba(99,102,241,.22)}.code-card.orange{border-color:rgba(251,146,60,.22)}
+.code-card.compact .c-body{font-size:.68vw;line-height:1.68}
+.code-card.micro .c-body{font-size:.63vw;line-height:1.6}
 .c-head{padding:.6vw 1vw;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;justify-content:space-between}
 .c-label{font-family:'JetBrains Mono',monospace;font-size:.65vw;color:#334155}.c-label.g{color:#22C55E}.c-label.i{color:#818CF8}.c-label.o{color:#FB923C}
 .dots{display:flex;gap:.4vw}.dot{width:.65vw;height:.65vw;border-radius:50%}.dot-r{background:#FF5F57}.dot-y{background:#FEBC2E}.dot-g{background:#28C840}
@@ -92,15 +94,19 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 .frow-sub{font-family:'JetBrains Mono',monospace;font-size:.68vw;color:#22613A;line-height:1.55}.frow-sub.dim{color:#1A2E1E}
 
 .mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:1vw;width:100%}
+.mod-grid.tight{gap:.7vw}
 .mod-card{border-radius:.6vw;padding:1.1vw 1.3vw;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.015)}
+.mod-grid.tight .mod-card{padding:.85vw 1vw}
 .mod-card.g{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.04)}
 .mod-card.i{border-color:rgba(99,102,241,.25);background:rgba(99,102,241,.04)}
 .mod-card.o{border-color:rgba(251,146,60,.2);background:rgba(251,146,60,.04)}
 .mod-card.s{border-color:rgba(34,211,238,.2);background:rgba(34,211,238,.04)}
 .mod-file{font-family:'JetBrains Mono',monospace;font-size:.6vw;letter-spacing:0;color:#334155;margin-bottom:.35vw;text-transform:uppercase}
 .mod-name{font-size:.95vw;font-weight:700;color:#E2E8F0;margin-bottom:.55vw}
+.mod-grid.tight .mod-name{font-size:.84vw;margin-bottom:.38vw}
 .mod-card.g .mod-name{color:#4ADE80}.mod-card.i .mod-name{color:#818CF8}.mod-card.o .mod-name{color:#FB923C}.mod-card.s .mod-name{color:#22D3EE}
 .mod-methods{font-family:'JetBrains Mono',monospace;font-size:.68vw;color:#334155;line-height:1.9}.mod-methods span{color:#22C55E}.mod-card.i .mod-methods span{color:#818CF8}.mod-card.o .mod-methods span{color:#FB923C}.mod-card.s .mod-methods span{color:#22D3EE}
+.mod-grid.tight .mod-methods{font-size:.61vw;line-height:1.6}
 
 .lane{display:grid;grid-template-columns:1fr .34fr 1fr;gap:.8vw;align-items:center}
 .lane-box{border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.015);border-radius:.6vw;padding:1vw}
@@ -164,21 +170,21 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
   <div class="cover-wrap">
     <div class="cover-left">
-      <div class="chip"><div class="chip-dot"></div>PERSONAL AGENT · TEAM WORKFLOW · CLAUDE API</div>
+      <div class="chip"><div class="chip-dot"></div>第六期 · 从子代理到固定团队</div>
       <div class="cover-title">Agent Team</div>
       <div class="cover-green">团队协作</div>
-      <div class="desc" style="max-width:39vw">从“派一个子代理办完即散”，进化到“组一支固定班底”：有名字、有角色、有状态、有 inbox，可以持续协作。</div>
+      <div class="desc" style="max-width:39vw">本期的核心句：subagent 是派一次差，Agent Team 是养一支班底。我们把 step08 的临时子代理，扩展成有名字、角色、状态和收件箱的固定队友。</div>
       <div style="display:flex;gap:.5vw;flex-wrap:wrap">
-        <span class="badge-g">Persistent Teammates</span>
-        <span class="badge-i">JSONL Inbox</span>
-        <span class="badge-o">Lead Dispatch</span>
+        <span class="badge-g">固定队友</span>
+        <span class="badge-i">文件收件箱</span>
+        <span class="badge-o">总控调度</span>
         <span class="badge-dim">step09_agent_team.py</span>
       </div>
     </div>
     <div class="cover-right">
-      <div class="info-row hi"><div class="info-icon">08</div><div><div class="info-name">Subagent</div><div class="info-sub">spawn → work → summary → destroyed</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">09</div><div><div class="info-name">Agent Team</div><div class="info-sub">spawn → work → idle → work → shutdown</div></div></div>
-      <div class="info-row hi3"><div class="info-icon">IO</div><div><div class="info-name">File Mailboxes</div><div class="info-sub">.team/inbox/*.jsonl</div></div></div>
+      <div class="info-row hi"><div class="info-icon">08</div><div><div class="info-name">临时派工</div><div class="info-sub">创建 → 执行 → 总结 → 销毁</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">09</div><div><div class="info-name">固定班底</div><div class="info-sub">召入 → 工作 → 空闲 → 再工作</div></div></div>
+      <div class="info-row hi3"><div class="info-icon">信</div><div><div class="info-name">通信方式</div><div class="info-sub">.team/inbox/*.jsonl 文件收件箱</div></div></div>
     </div>
   </div>
   <div class="footer"><span>第六期</span><span>BUILD AGENT EXAMPLE · 2026</span></div>
@@ -186,30 +192,27 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s1">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-o"></div></div>
-  <div class="page-id">// problem &nbsp;·&nbsp; <span>一次性子代理不够了</span></div>
+  <div class="page-id">// 问题 &nbsp;·&nbsp; <span>一次性子代理不够了</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">PROBLEM 01 · BEYOND SUBAGENT</div>
+      <div class="tag">问题定义 · 从临时派工到持续协作</div>
       <div class="h-main">有些任务不是<br><em>办完就散</em></div>
-      <div class="desc">第五期的子代理擅长隔离上下文，但它是一次性劳动力。到了长期项目，我们需要固定角色、持续沟通和可观察的团队状态。</div>
-      <div class="info-row hi"><div class="info-icon">A</div><div><div class="info-name">长期项目</div><div class="info-sub">coder / reviewer / researcher 需要反复接活</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">B</div><div><div class="info-name">异步协作</div><div class="info-sub">队友之间不只回主线总结，还要互相传话</div></div></div>
-      <div class="info-row hi3"><div class="info-icon">C</div><div><div class="info-name">状态可见</div><div class="info-sub">lead 能看到谁 working，谁 idle，谁 shutdown</div></div></div>
+      <div class="desc">step08 的 subagent 适合一次性读文件、查资料、跑命令；长期 demo 项目需要 coder 与 reviewer 反复交接。</div>
+      <div class="info-row hi"><div class="info-icon">1</div><div><div class="info-name">coder 先写</div><div class="info-sub">固定成员要能接第一轮任务</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">2</div><div><div class="info-name">reviewer 检查</div><div class="info-sub">另一个固定角色接着审查</div></div></div>
+      <div class="info-row hi3"><div class="info-icon">3</div><div><div class="info-name">再修改、再复查</div><div class="info-sub">成员要能空闲后继续接活</div></div></div>
     </div>
     <div class="col">
       <div class="terminal">
-        <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="term-title">mental_model.txt</div></div>
+        <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="term-title">脚本中的 demo 项目</div></div>
         <div class="term-body">
-          <span class="prompt">subagent</span> = 派一次差<br>
-          <span class="dim">  创建独立上下文</span><br>
-          <span class="dim">  执行工具细节</span><br>
-          <span class="dim">  回传压缩总结</span><br>
-          <span class="warn">  结束后销毁</span><br><br>
-          <span class="prompt">agent team</span> = 养一支班底<br>
-          <span class="dim">  固定名字 / 角色 / 状态</span><br>
-          <span class="dim">  通过 inbox 收发消息</span><br>
-          <span class="dim">  完成后回到 idle</span><br>
-          <span class="out">  等下一件差事</span>
+          <span class="prompt">用户目标</span>：做一个 demo 项目<br>
+          <span class="dim">01</span> coder 写代码<br>
+          <span class="dim">02</span> reviewer 检查代码<br>
+          <span class="dim">03</span> coder 根据 review 修改<br>
+          <span class="dim">04</span> reviewer 再复查<br>
+          <span class="out">05</span> lead 汇总结果<br><br>
+          <span class="warn">结论</span>：需要固定成员，而不是一次性子代理
         </div>
       </div>
     </div>
@@ -218,24 +221,24 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s2">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
-  <div class="page-id">// compare &nbsp;·&nbsp; <span>两层能力，不冲突</span></div>
+  <div class="page-id">// 对比 &nbsp;·&nbsp; <span>两层能力，不冲突</span></div>
   <div class="two-col">
     <div class="col">
-      <div class="tag">COMPARE 02 · DISPATCH VS TEAM</div>
+      <div class="tag">临时派工 · Subagent 生命周期</div>
       <div class="h-main"><em>Subagent</em><br>临时派工</div>
       <div class="flow-col">
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">01</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">spawn</div><div class="frow-sub">按身份启动一个独立 message loop</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">02</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">execute</div><div class="frow-sub">内部跑工具、试错、阅读文件</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">03</div></div><div class="frow-body"><div class="frow-name">return summary</div><div class="frow-sub">只给主 history 回填一段总结</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">01</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">创建独立上下文</div><div class="frow-sub">dispatch_subagent 启动一次性办差循环</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">02</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">执行工具细节</div><div class="frow-sub">适合搜索、批量读取、跑命令</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">03</div></div><div class="frow-body"><div class="frow-name">总结后销毁</div><div class="frow-sub">只把压缩总结放回主 history</div></div></div>
       </div>
     </div>
     <div class="col">
-      <div class="tag">COMPARE 02 · PERSISTENT TEAM</div>
+      <div class="tag">固定团队 · Agent Team 生命周期</div>
       <div class="h-main"><em>Agent Team</em><br>固定组织</div>
       <div class="flow-col">
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">01</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">spawn teammate</div><div class="frow-sub">写入 config，启动队友线程</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">02</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">work then idle</div><div class="frow-sub">完成当前任务后继续等待 inbox</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">03</div></div><div class="frow-body"><div class="frow-name">communicate</div><div class="frow-sub">lead 与队友、队友与队友异步传消息</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">01</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">召入固定队友</div><div class="frow-sub">spawn_teammate 写 config 并启动线程</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">02</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">工作后回到空闲</div><div class="frow-sub">work → idle → work，等待下一封 inbox</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">03</div></div><div class="frow-body"><div class="frow-name">通过消息协作</div><div class="frow-sub">关注组织协作，不替代 subagent</div></div></div>
       </div>
     </div>
   </div>
@@ -243,22 +246,22 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s3">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-c"></div><div class="glow-r"></div></div>
-  <div class="page-id">// 架构 &nbsp;·&nbsp; <span>总控 + 队友 + 收件箱</span></div>
+  <div class="page-id">// 拓扑 &nbsp;·&nbsp; <span>总控 + 队友 + 文件收件箱</span></div>
   <div class="two-col wide-r">
     <div class="col">
-      <div class="tag">架构 03 · 团队拓扑</div>
+      <div class="tag">架构拓扑 · 总控与收件箱</div>
       <div class="h-main">团队不是一堆调用<br>而是<em>组织结构</em></div>
-      <div class="desc">总控负责任务拆解、召入队友、分派消息、读取回禀。每个队友在独立线程里运行自己的循环，办完后回到空闲状态。</div>
+      <div class="desc">中间是总控，负责理解目标、拆任务、召队友、发消息、读回禀和汇总；周围队友各自在独立线程里运行。</div>
       <div style="display:flex;gap:.5vw;flex-wrap:wrap">
-        <span class="badge-g">总控</span>
-        <span class="badge-i">队友循环</span>
-        <span class="badge-o">收件箱</span>
-        <span class="badge-dim">团队配置</span>
+        <span class="badge-g">lead 总控</span>
+        <span class="badge-i">队友线程</span>
+        <span class="badge-o">发送=追加</span>
+        <span class="badge-dim">读取=清空</span>
       </div>
     </div>
     <div class="col">
       <div class="team-map">
-        <div class="map-title">团队拓扑 · 文件收件箱通信</div>
+        <div class="map-title">团队拓扑 · 每个成员都有自己的收件箱</div>
         <div class="legend">
           <div class="legend-item"><div class="legend-swatch g"></div>总控</div>
           <div class="legend-item"><div class="legend-swatch i"></div>队友</div>
@@ -282,7 +285,7 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
         <div class="msg-pill p3">← 资料回传</div>
         <div class="msg-pill p4">验收报告 →</div>
         <div class="node lead"><div class="node-role">团队总控</div><div class="node-name">总管</div><div class="node-state">分派 / 读信</div></div>
-        <div class="inbox-core"><div class="inbox-title">消息总线</div><div class="inbox-sub">.team/inbox/*.jsonl<br>追加 → 取空</div></div>
+        <div class="inbox-core"><div class="inbox-title">消息总线</div><div class="inbox-sub">.team/inbox/*.jsonl<br>发送追加 · 读取清空</div></div>
         <div class="node a"><div class="node-role">代码队友</div><div class="node-name">阿丽</div><div class="node-state">工作中</div></div>
         <div class="node b"><div class="node-role">审查队友</div><div class="node-name">小鲍</div><div class="node-state">空闲</div></div>
         <div class="node c"><div class="node-role">资料队友</div><div class="node-name">小陈</div><div class="node-state">空闲</div></div>
@@ -294,14 +297,14 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s4">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
-  <div class="page-id">// message bus &nbsp;·&nbsp; <span>文件就是邮箱</span></div>
+  <div class="page-id">// 消息总线 &nbsp;·&nbsp; <span>文件就是邮箱</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">BUILD 04 · MESSAGE BUS</div>
+      <div class="tag">消息总线 · 文件收件箱</div>
       <div class="h-main">每个队友<br>一个<em>JSONL inbox</em></div>
-      <div class="desc">教学版不用数据库，也不用消息队列。发送消息就是 append 一行 JSON；读取消息就是读完后清空文件。</div>
-      <div class="code-card orange">
-        <div class="c-head"><div class="c-label o">.team layout</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
+      <div class="desc">最小可用异步通信：不引入数据库或消息队列，只用一人一个 JSONL 文件模拟收件箱。</div>
+      <div class="code-card orange compact">
+        <div class="c-head"><div class="c-label o">.team 目录</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
         <div class="c-body">
           .team/<br>
           ├── config.json<br>
@@ -313,18 +316,18 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
       </div>
     </div>
     <div class="col">
-      <div class="code-card green">
-        <div class="c-head"><div class="c-label g">MessageBus</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
+      <div class="code-card green micro">
+        <div class="c-head"><div class="c-label g">MessageBus.send / read_inbox</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
         <div class="c-body">
-          <span class="ln">01</span><span class="kw">class</span> <span class="fn">MessageBus</span>:<br>
-          <span class="ln">02</span>&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">send</span>(sender, to, content):<br>
-          <span class="ln">03</span>&nbsp;&nbsp;&nbsp;&nbsp;msg = {<span class="st">"type"</span>, <span class="st">"from"</span>, <span class="st">"content"</span>, <span class="st">"timestamp"</span>}<br>
-          <span class="ln">04</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hl">open(<span class="st">f"{to}.jsonl"</span>, <span class="st">"a"</span>).write(json.dumps(msg))</span><br>
-          <span class="ln">05</span><br>
-          <span class="ln">06</span>&nbsp;&nbsp;<span class="kw">def</span> <span class="fn">read_inbox</span>(name):<br>
-          <span class="ln">07</span>&nbsp;&nbsp;&nbsp;&nbsp;messages = parse_all_lines(name)<br>
-          <span class="ln">08</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hl">write_text(<span class="st">""</span>)  <span class="cm"># drain</span></span><br>
-          <span class="ln">09</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> messages
+          <span class="ln">01</span>BUS.send(<span class="st">"lead"</span>, <span class="st">"alice"</span>, <span class="st">"请检查 bug"</span>)<br>
+          <span class="ln">02</span><span class="dim">写入：</span>.team/inbox/alice.jsonl<br><br>
+          <span class="ln">03</span>{<br>
+          <span class="ln">04</span>&nbsp;&nbsp;<span class="prop">"type"</span>: <span class="st">"message"</span>,<br>
+          <span class="ln">05</span>&nbsp;&nbsp;<span class="prop">"from"</span>: <span class="st">"lead"</span>,<br>
+          <span class="ln">06</span>&nbsp;&nbsp;<span class="prop">"content"</span>: <span class="st">"请检查 bug"</span>,<br>
+          <span class="ln">07</span>&nbsp;&nbsp;<span class="prop">"timestamp"</span>: <span class="num">1710000000.0</span><br>
+          <span class="ln">08</span>}<br><br>
+          <span class="hl">read_inbox("alice")：读取全部 → 解析列表 → 清空文件</span>
         </div>
       </div>
     </div>
@@ -333,18 +336,18 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s5">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-o"></div></div>
-  <div class="page-id">// manager &nbsp;·&nbsp; <span>团队配置与状态机</span></div>
+  <div class="page-id">// 管理器 &nbsp;·&nbsp; <span>团队配置与状态机</span></div>
   <div class="two-col">
     <div class="col">
-      <div class="tag">BUILD 05 · TEAMMATE MANAGER</div>
+      <div class="tag">团队配置 · 状态机</div>
       <div class="h-main">固定队友需要<br><em>身份和状态</em></div>
-      <div class="desc">`config.json` 是团队组织结构。它让 agent team 不只是几次函数调用，而是一个可观察、可恢复、可继续分派的班底。</div>
-      <div class="info-row hi"><div class="info-icon">N</div><div><div class="info-name">name</div><div class="info-sub">alice / bob / reviewer</div></div></div>
-      <div class="info-row hi2"><div class="info-icon">R</div><div><div class="info-name">role</div><div class="info-sub">coder / reviewer / researcher</div></div></div>
-      <div class="info-row hi3"><div class="info-icon">S</div><div><div class="info-name">status</div><div class="info-sub">working / idle / shutdown</div></div></div>
+      <div class="desc">`.team/config.json` 是团队花名册，记录名字、角色和状态，尤其标记重启后的 offline。</div>
+      <div class="info-row hi"><div class="info-icon">人</div><div><div class="info-name">name / role</div><div class="info-sub">alice 是 coder，bob 是 reviewer</div></div></div>
+      <div class="info-row hi2"><div class="info-icon">态</div><div><div class="info-name">working / idle</div><div class="info-sub">线程活着：正在工作或等待消息</div></div></div>
+      <div class="info-row hi3"><div class="info-icon">离</div><div><div class="info-name">offline / shutdown</div><div class="info-sub">重启后旧线程消失；需重新 spawn 才会处理 inbox</div></div></div>
     </div>
     <div class="col">
-      <div class="code-card ind">
+      <div class="code-card ind compact">
         <div class="c-head"><div class="c-label i">.team/config.json</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
         <div class="c-body">
           {<br>
@@ -356,7 +359,9 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="prop">"status"</span>: <span class="st">"idle"</span><br>
           &nbsp;&nbsp;&nbsp;&nbsp;}<br>
           &nbsp;&nbsp;]<br>
-          }
+          }<br><br>
+          <span class="hl">启动时：idle / working → offline</span><br>
+          <span class="cm">名字还在，信箱还在，但人没有上线。</span>
         </div>
       </div>
     </div>
@@ -365,20 +370,27 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s6">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-c"></div><div class="glow-r"></div></div>
-  <div class="page-id">// teammate loop &nbsp;·&nbsp; <span>工作、空闲、再工作</span></div>
+  <div class="page-id">// 队友循环 &nbsp;·&nbsp; <span>工作、空闲、再工作</span></div>
   <div class="two-col wide-r">
     <div class="col">
-      <div class="tag">BUILD 06 · PERSISTENT LOOP</div>
+      <div class="tag">队友循环 · 持久线程</div>
       <div class="h-main">队友线程<br>不是一次性工具</div>
-      <div class="desc">teammate 有自己的 messages、system prompt 和工具列表。它处理完当前任务后不销毁，而是回到 idle，继续轮询自己的 inbox。</div>
+      <div class="desc">`spawn_teammate` 写配置、启动线程；队友拥有自己的 prompt、messages、tools，办完回到 idle 继续等信。</div>
+      <div class="code-card green compact">
+        <div class="c-head"><div class="c-label g">队友不是临时函数</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
+        <div class="c-body">
+          subagent：办完 → 销毁<br>
+          teammate：办完 → status=idle → 等下一封信
+        </div>
+      </div>
     </div>
     <div class="col">
       <div class="flow-col">
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">01</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">spawn_teammate</div><div class="frow-sub">创建线程，初始化独立 messages</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">02</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">read inbox</div><div class="frow-sub">把 JSON 消息追加进 teammate 上下文</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">03</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">tool loop</div><div class="frow-sub">调用基础工具和通信工具，完成当前差事</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">04</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name">send result</div><div class="frow-sub">向 lead 回禀，然后 status → idle</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">∞</div></div><div class="frow-body"><div class="frow-name dim">wait next message</div><div class="frow-sub dim">下一封 inbox 到来后继续工作</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">01</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">读取 inbox</div><div class="frow-sub">把 JSON 消息追加进自己的 messages</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">02</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">调用模型</div><div class="frow-sub">用自己的 system prompt 理解当前差事</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">03</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">执行工具</div><div class="frow-sub">read_file / write_file / run_command / send_message</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">04</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name">回禀总控</div><div class="frow-sub">send_message("lead", result)，再把状态改为空闲</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">∞</div></div><div class="frow-body"><div class="frow-name dim">继续等待</div><div class="frow-sub dim">下一封 inbox 到来后继续工作</div></div></div>
       </div>
     </div>
   </div>
@@ -386,22 +398,23 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s7">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
-  <div class="page-id">// lead tools &nbsp;·&nbsp; <span>主 agent 的团队接口</span></div>
+  <div class="page-id">// 总控工具 &nbsp;·&nbsp; <span>主 Agent 的团队接口</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">API 07 · LEAD TOOL SURFACE</div>
-      <div class="h-main">Lead 多了五个<br><em>团队工具</em></div>
-      <div class="desc">这些工具把“团队协作”暴露给模型：先召人，再看状态，之后通过 inbox 分派和收回结果。</div>
+      <div class="tag">工具接口 · 总控调度</div>
+      <div class="h-main">总控多了五个<br><em>团队工具</em></div>
+      <div class="desc">五个工具构成总控接口：召人、看队、发信、收信、广播。主 Agent 从工具调用者升级成调度者。</div>
       <div style="display:flex;gap:.5vw;flex-wrap:wrap">
-        <span class="badge-g">spawn</span><span class="badge-i">list</span><span class="badge-o">send</span><span class="badge-g">read</span><span class="badge-dim">broadcast</span>
+        <span class="badge-g">召入/唤回</span><span class="badge-i">查看状态</span><span class="badge-o">单点发信</span><span class="badge-g">读取回禀</span><span class="badge-dim">全队广播</span>
       </div>
     </div>
     <div class="col">
-      <div class="mod-grid">
-        <div class="mod-card g"><div class="mod-file">team</div><div class="mod-name">spawn_teammate</div><div class="mod-methods"><span>name</span> + <span>role</span> + <span>prompt</span><br>启动固定队友线程</div></div>
-        <div class="mod-card i"><div class="mod-file">team</div><div class="mod-name">list_teammates</div><div class="mod-methods">读取 config<br>显示 working / idle</div></div>
-        <div class="mod-card o"><div class="mod-file">inbox</div><div class="mod-name">send_message</div><div class="mod-methods">lead → teammate<br>追加 JSONL 消息</div></div>
-        <div class="mod-card s"><div class="mod-file">inbox</div><div class="mod-name">broadcast</div><div class="mod-methods">lead → all<br>全队同步指令</div></div>
+      <div class="mod-grid tight">
+        <div class="mod-card g"><div class="mod-file">召人</div><div class="mod-name">spawn_teammate</div><div class="mod-methods"><span>name</span> + <span>role</span> + <span>prompt</span><br>新建或唤回 offline 队友</div></div>
+        <div class="mod-card i"><div class="mod-file">看队</div><div class="mod-name">list_teammates</div><div class="mod-methods">读取 config<br>显示 working / idle / offline</div></div>
+        <div class="mod-card o"><div class="mod-file">发信</div><div class="mod-name">send_message</div><div class="mod-methods">总控 → 队友<br>追加到目标 jsonl</div></div>
+        <div class="mod-card s"><div class="mod-file">收信</div><div class="mod-name">read_inbox</div><div class="mod-methods">读取 lead.jsonl<br>查看队友回禀</div></div>
+        <div class="mod-card g"><div class="mod-file">群发</div><div class="mod-name">broadcast</div><div class="mod-methods">总控 → 全队<br>给所有队友同步指令</div></div>
       </div>
     </div>
   </div>
@@ -409,29 +422,29 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s8">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-o"></div></div>
-  <div class="page-id">// structure &nbsp;·&nbsp; <span>Agent Team 的四层结构</span></div>
+  <div class="page-id">// 四层结构 &nbsp;·&nbsp; <span>不是多调几次模型</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">STRUCTURE 08 · FOUR LAYERS</div>
+      <div class="tag">结构总览 · 四层协作</div>
       <div class="h-main">Agent Team<br>= <em>四层协作结构</em></div>
-      <div class="desc">不要把 team 理解成“多调几次模型”。它至少包含一个总控、一组持久队友、一份团队花名册，以及一个消息总线。</div>
-      <div class="code-card green">
-        <div class="c-head"><div class="c-label g">mental model</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
+      <div class="desc">真正的 team = 调度者 + 固定成员 + 状态记录 + 通信机制。多个模型调用本身不等于团队。</div>
+      <div class="code-card green compact">
+        <div class="c-head"><div class="c-label g">课堂公式</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
         <div class="c-body">
           Agent Team<br>
-          ├── Lead Agent<br>
-          ├── Teammate Agents<br>
+          ├── 总控：拆任务 / 调度 / 汇总<br>
+          ├── 队友：名字 / 角色 / 状态<br>
           ├── .team/config.json<br>
           └── .team/inbox/*.jsonl
         </div>
       </div>
     </div>
     <div class="col">
-      <div class="mod-grid">
-        <div class="mod-card g"><div class="mod-file">Lead Agent</div><div class="mod-name">团队总控</div><div class="mod-methods"><span>spawn_teammate</span><br><span>send_message</span><br><span>read_inbox</span><br>拆任务、分派、汇总</div></div>
-        <div class="mod-card i"><div class="mod-file">Teammate Agent</div><div class="mod-name">固定队友</div><div class="mod-methods"><span>name</span> / <span>role</span> / <span>status</span><br>独立 agent loop<br>work → idle → work</div></div>
-        <div class="mod-card o"><div class="mod-file">Team Config</div><div class="mod-name">团队花名册</div><div class="mod-methods"><span>.team/config.json</span><br>team_name<br>members[]<br>状态可观察</div></div>
-        <div class="mod-card s"><div class="mod-file">MessageBus</div><div class="mod-name">文件消息层</div><div class="mod-methods"><span>.team/inbox/{name}.jsonl</span><br>send = append<br>read = drain</div></div>
+      <div class="mod-grid tight">
+        <div class="mod-card g"><div class="mod-file">第一层</div><div class="mod-name">总控</div><div class="mod-methods"><span>spawn_teammate</span><br><span>send_message</span><br><span>read_inbox</span><br>理解目标、分派、汇总</div></div>
+        <div class="mod-card i"><div class="mod-file">第二层</div><div class="mod-name">固定队友</div><div class="mod-methods"><span>name</span> / <span>role</span> / <span>status</span><br>独立循环<br>工作 → 空闲 → 再工作</div></div>
+        <div class="mod-card o"><div class="mod-file">第三层</div><div class="mod-name">团队花名册</div><div class="mod-methods"><span>.team/config.json</span><br>team_name<br>members[]<br>状态可观察</div></div>
+        <div class="mod-card s"><div class="mod-file">第四层</div><div class="mod-name">消息总线</div><div class="mod-methods"><span>.team/inbox/{name}.jsonl</span><br>发送追加<br>读取清空</div></div>
       </div>
     </div>
   </div>
@@ -439,31 +452,33 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s9">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-c"></div><div class="glow-r"></div></div>
-  <div class="page-id">// runtime &nbsp;·&nbsp; <span>一次完整通信链路</span></div>
+  <div class="page-id">// 运行链路 &nbsp;·&nbsp; <span>alice 写代码，bob 做审查</span></div>
   <div class="two-col wide-r">
     <div class="col">
-      <div class="tag">RUNTIME 09 · MESSAGE FLOW</div>
+      <div class="tag">运行链路 · 一次完整闭环</div>
       <div class="h-main">从用户一句话<br>到<em>队友回禀</em></div>
-      <div class="desc">这一页是课堂上最值得慢讲的地方：team 的关键不是“多个模型一起跑”，而是消息在 lead、队友线程、文件 inbox 之间如何流动。</div>
+      <div class="desc">总控召入 alice / bob，消息进 alice inbox，alice 回禀，总控转给 bob，最后汇总。</div>
       <div class="terminal">
-        <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="term-title">runtime trace</div></div>
+        <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><div class="term-title">完整通信链路</div></div>
         <div class="term-body">
-          <span class="prompt">user</span> → 组一个 coder / reviewer 小队<br>
-          <span class="out">lead</span> → spawn_teammate("alice", "coder")<br>
-          <span class="dim">config</span> → members += {"name":"alice","status":"working"}<br>
-          <span class="out">alice loop</span> → tool use / write / read / run<br>
-          <span class="out">alice</span> → send_message("lead", "我改好了")<br>
-          <span class="prompt">lead</span> → read_inbox("lead") → 汇总给用户
+          <span class="prompt">用户</span>：组小队，alice 写代码，bob 做审查<br>
+          <span class="out">总控</span>：spawn_teammate("alice", "coder", ...)<br>
+          <span class="out">总控</span>：spawn_teammate("bob", "reviewer", ...)<br>
+          <span class="dim">config</span>：写入 alice / bob 的角色和状态<br>
+          <span class="out">总控</span>：send_message("alice", "先写 hello.py")<br>
+          <span class="out">alice</span>：读取 inbox，写文件，回禀总控<br>
+          <span class="prompt">总控</span>：read_inbox("lead")，再转给 bob<br>
+          <span class="out">bob</span>：审查后回禀，总控汇总给用户
         </div>
       </div>
     </div>
     <div class="col gap">
       <div class="flow-col">
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">1</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">用户给目标</div><div class="frow-sub">Lead 判断这是长期协作，不是一次性 subagent</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">2</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">Lead 召入队友</div><div class="frow-sub">TeammateManager 写 config，并启动 daemon thread</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">3</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">队友独立工作</div><div class="frow-sub">自己的 messages + system prompt + teammate tools</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">4</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name">inbox 回传</div><div class="frow-sub">send_message 追加 lead.jsonl，read_inbox 读取并清空</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">5</div></div><div class="frow-body"><div class="frow-name dim">状态回 idle</div><div class="frow-sub dim">队友不销毁，继续等下一封 inbox</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">1</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">判断任务类型</div><div class="frow-sub">长期协作：不用一次性 subagent，而是组队</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">2</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">召入 alice / bob</div><div class="frow-sub">TeammateManager 写 config，并启动队友线程</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">3</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">消息进入 alice inbox</div><div class="frow-sub">send_message 追加 .team/inbox/alice.jsonl</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">4</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name">alice 回禀总控</div><div class="frow-sub">总控读取自己的 inbox，再转派给 bob</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">5</div></div><div class="frow-body"><div class="frow-name dim">形成闭环</div><div class="frow-sub dim">任务靠消息流动，状态靠 config 可见</div></div></div>
       </div>
     </div>
   </div>
@@ -471,25 +486,32 @@ html,body{width:100%;height:100%;background:#050B14;overflow:hidden;font-family:
 
 <div class="slide" id="s10">
   <div class="bg"><div class="grid"></div><div class="top-bar"></div><div class="glow-l"></div><div class="glow-r"></div></div>
-  <div class="page-id">// summary &nbsp;·&nbsp; <span>完整心智模型</span></div>
+  <div class="page-id">// 总结 &nbsp;·&nbsp; <span>三层能力叠加</span></div>
   <div class="two-col wide-l">
     <div class="col">
-      <div class="tag">SUMMARY 10 · MENTAL MODEL</div>
-      <div class="h-main">Agent Team<br>就是<em>组织化协作</em></div>
-      <div class="desc">从工具调用，到子代理派遣，再到固定团队，Agent 的工程形态一步步从“会做事”变成“会组织别人做事”。</div>
+      <div class="tag">课程总结 · 三层能力叠加</div>
+      <div class="h-main">从会做事<br>到<em>会组织人做事</em></div>
+      <div class="desc">能力层层叠加：规划决定做什么，subagent 承接临时细节，Agent Team 负责长期角色协作。</div>
       <div style="display:flex;gap:.5vw;flex-wrap:wrap">
-        <span class="badge-g">team config</span>
-        <span class="badge-i">named agents</span>
-        <span class="badge-o">file inbox</span>
-        <span class="badge-dim">persistent loop</span>
+        <span class="badge-g">规划</span>
+        <span class="badge-i">临时派工</span>
+        <span class="badge-o">固定团队</span>
+        <span class="badge-dim">offline 语义</span>
+      </div>
+      <div class="code-card orange compact" style="margin-top:1.2vw">
+        <div class="c-head"><div class="c-label o">本期关键句</div><div class="dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div></div>
+        <div class="c-body">
+          subagent 是派一次差；<br>
+          Agent Team 是养一支班底。
+        </div>
       </div>
     </div>
     <div class="col">
       <div class="flow-col">
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">s07</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name dim">Plan</div><div class="frow-sub dim">主 Agent 会拆任务</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">s08</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">Subagent</div><div class="frow-sub">临时隔离细节，上下文不污染</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">s09</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">Agent Team</div><div class="frow-sub">固定角色持续协作，inbox 异步通信</div></div></div>
-        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">next</div></div><div class="frow-body"><div class="frow-name">Orchestration</div><div class="frow-sub">审批、路由、记忆、监督和团队治理</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-dim">s07</div><div class="frow-line fl-dim"></div></div><div class="frow-body"><div class="frow-name dim">规划能力</div><div class="frow-sub dim">update_todos：先拆任务，再按状态推进</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-g">s08</div><div class="frow-line fl-g"></div></div><div class="frow-body"><div class="frow-name">临时子代理</div><div class="frow-sub">dispatch_subagent：隔离细节，办完只回总结</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-i">s09</div><div class="frow-line fl-i"></div></div><div class="frow-body"><div class="frow-name">固定团队</div><div class="frow-sub">spawn_teammate / send_message / read_inbox / broadcast</div></div></div>
+        <div class="frow"><div class="frow-left"><div class="frow-icon fi-o">后续</div></div><div class="frow-body"><div class="frow-name">继续演进</div><div class="frow-sub">审批、投票、团队记忆、任务路由、可靠消息队列</div></div></div>
       </div>
     </div>
   </div>
